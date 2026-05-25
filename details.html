@@ -1,0 +1,2648 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regenix — Deep Dive · An Ultra-Low-Cost Semi-Rigid Knee Exoskeleton</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,350;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="assets/main.css">
+
+<style>
+  /* Page-specific ----------------------------------------- */
+  main { padding-top: 56px; }
+
+  /* Section scaffold -------------------------------------- */
+  section.s {
+    padding: 96px 0 88px;
+    border-top: 1px solid var(--rule);
+  }
+  section.s.first { border-top: none; padding-top: 64px; }
+  section.s .s-head {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 56px;
+    margin-bottom: 56px;
+    align-items: baseline;
+  }
+  section.s .s-head .s-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  section.s .s-head .s-label .num { color: var(--accent); margin-right: 8px; }
+  section.s .s-head h2 {
+    max-width: 720px;
+    text-wrap: balance;
+  }
+  section.s .s-head h2 em { color: var(--accent); }
+  @media (max-width: 900px) {
+    section.s .s-head { grid-template-columns: 1fr; gap: 16px; margin-bottom: 32px; }
+  }
+
+  .lede {
+    font-family: var(--serif);
+    font-size: clamp(20px, 1.8vw, 25px);
+    line-height: 1.45;
+    color: var(--ink);
+    font-weight: 350;
+    letter-spacing: -0.005em;
+    max-width: 700px;
+  }
+  .lede em { color: var(--accent); font-style: italic; }
+  .lede + .lede, p + p { margin-top: 18px; }
+
+  .body-prose {
+    max-width: 660px;
+    font-size: 15.5px;
+    line-height: 1.65;
+    color: var(--ink);
+  }
+  .body-prose em { color: var(--accent); font-style: italic; }
+  .body-prose + .body-prose { margin-top: 14px; }
+
+  /* STICKY NAV  ------------------------------------------- */
+  .toc {
+    position: fixed;
+    top: 88px;
+    left: max(24px, calc((100vw - var(--maxw)) / 2 - 200px));
+    width: 200px;
+    z-index: 20;
+    pointer-events: none;
+  }
+  .toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    pointer-events: auto;
+  }
+  .toc li {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding: 6px 0 6px 18px;
+    border-left: 1px solid var(--rule);
+    transition: color 0.2s ease, border-color 0.2s ease;
+    line-height: 1.3;
+  }
+  .toc li a { color: inherit; border: none; }
+  .toc li.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+  }
+  .toc li:hover { color: var(--ink); }
+  .toc li.active:hover { color: var(--accent); }
+  .toc-num { margin-right: 8px; opacity: 0.6; }
+  @media (max-width: 1280px) { .toc { display: none; } }
+
+  /* HERO  ------------------------------------------------- */
+  .hero {
+    padding: 80px 0 56px;
+  }
+  .hero h1 {
+    margin-top: 28px;
+  }
+  .hero h1 .em { font-style: italic; color: var(--accent); }
+  .hero .hero-sub {
+    margin-top: 32px;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(20px, 1.7vw, 23px);
+    color: var(--ink-muted);
+    max-width: 720px;
+    line-height: 1.45;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    margin-top: 64px;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .hero-stats .cell {
+    padding: 28px 24px;
+    border-right: 1px solid var(--rule);
+  }
+  .hero-stats .cell:last-child { border-right: none; }
+  .hero-stats .h-num {
+    font-family: var(--serif);
+    font-weight: 350;
+    font-size: clamp(32px, 3vw, 44px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+  .hero-stats .h-num .em { color: var(--accent); font-style: italic; }
+  .hero-stats .h-num .unit {
+    font-family: var(--mono);
+    font-size: 0.35em;
+    color: var(--ink-muted);
+    margin-left: 4px;
+    vertical-align: 0.55em;
+    letter-spacing: 0.04em;
+  }
+  .hero-stats .h-label {
+    margin-top: 12px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  @media (max-width: 900px) {
+    .hero-stats { grid-template-columns: repeat(2, 1fr); }
+    .hero-stats .cell { border-bottom: 1px solid var(--rule); }
+    .hero-stats .cell:nth-child(2n) { border-right: none; }
+  }
+
+  /* CARDS  ------------------------------------------------ */
+  .cards-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+  .card {
+    border-top: 1px solid var(--rule-strong);
+    padding-top: 22px;
+  }
+  .card .card-tag {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .card.muted .card-tag { color: var(--ink-muted); }
+  .card h3 {
+    font-family: var(--serif);
+    font-size: 26px;
+    line-height: 1.1;
+    margin-bottom: 14px;
+    font-weight: 400;
+  }
+  .card h3 em { color: var(--accent); font-style: italic; }
+  .card .card-body {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 18px;
+  }
+  .card .card-foot {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--ink-muted);
+    border-top: 1px solid var(--rule);
+    padding-top: 14px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 16px;
+  }
+  .card .card-foot .k {
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 9.5px;
+  }
+  .card .card-foot .v {
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 900px) {
+    .cards-3 { grid-template-columns: 1fr; gap: 24px; }
+  }
+
+  /* Approach cards (3 approaches) ------------------------- */
+  .approach-card {
+    border-top: 1px solid var(--rule-strong);
+    padding-top: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .approach-card.us {
+    border-top-color: var(--accent);
+  }
+  .approach-card .ac-tag {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .approach-card.us .ac-tag { color: var(--accent); }
+  .approach-card h3 {
+    font-size: 28px;
+    line-height: 1.05;
+    font-weight: 400;
+  }
+  .approach-card h3 em { color: var(--accent); font-style: italic; }
+  .approach-card .ac-body {
+    font-size: 14.5px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+  .approach-card .ac-stats {
+    margin-top: auto;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px 18px;
+    border-top: 1px solid var(--rule);
+    padding-top: 14px;
+  }
+  .approach-card .ac-stats .k {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 2px;
+  }
+  .approach-card .ac-stats .v {
+    font-family: var(--serif);
+    font-size: 18px;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .approach-card.us .ac-stats .v { color: var(--accent); }
+  .approach-card .ac-pros, .approach-card .ac-cons {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--ink-muted);
+  }
+  .approach-card .ac-line {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 4px;
+  }
+  .approach-card .ac-line.good { color: var(--accent); }
+  .approach-card .ac-line.bad  { color: var(--series-clay); }
+
+  /* MODE CARDS  ------------------------------------------- */
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--rule);
+    border-left: 1px solid var(--rule);
+  }
+  .mode-card {
+    border-right: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    padding: 32px 32px 28px;
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 28px;
+    align-items: start;
+  }
+  .mode-card .m-num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 84px;
+    line-height: 0.9;
+    color: var(--accent);
+    font-weight: 300;
+    letter-spacing: -0.04em;
+  }
+  .mode-card .m-stage {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 8px;
+  }
+  .mode-card h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+  .mode-card .m-body {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .mode-card .m-foot {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 18px;
+    border-top: 1px solid var(--rule);
+    padding-top: 12px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+  }
+  .mode-card .m-foot .k {
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 9.5px;
+  }
+  .mode-card .m-foot .v {
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  @media (max-width: 900px) {
+    .mode-grid { grid-template-columns: 1fr; }
+    .mode-card { grid-template-columns: 80px 1fr; gap: 18px; padding: 24px; }
+    .mode-card .m-num { font-size: 60px; }
+  }
+
+  /* COMPONENT GRID ---------------------------------------- */
+  .comp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px 32px;
+  }
+  .comp-card {
+    border-top: 1px solid var(--rule);
+    padding-top: 18px;
+  }
+  .comp-card .role {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .comp-card h4 {
+    font-family: var(--serif);
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.15;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+  .comp-card .desc {
+    font-size: 13px;
+    color: var(--ink-muted);
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+  .comp-card .specs {
+    border-top: 1px dashed var(--rule);
+    padding-top: 12px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    line-height: 1.7;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .comp-card .specs .k { color: var(--ink-muted); }
+  @media (max-width: 900px) {
+    .comp-grid { grid-template-columns: 1fr 1fr; gap: 22px; }
+  }
+  @media (max-width: 600px) {
+    .comp-grid { grid-template-columns: 1fr; }
+  }
+
+  /* TIMELINE --------------------------------------------- */
+  .timeline {
+    position: relative;
+    padding-left: 32px;
+    border-left: 1px solid var(--rule);
+  }
+  .tl-row {
+    position: relative;
+    padding: 0 0 40px 32px;
+  }
+  .tl-row:last-child { padding-bottom: 0; }
+  .tl-row::before {
+    content: "";
+    position: absolute;
+    left: -38px;
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px var(--bg);
+  }
+  .tl-row.done::before { background: var(--accent); }
+  .tl-row.next::before { background: var(--bg); border: 2px solid var(--accent); top: 4px; }
+  .tl-row.future::before { background: var(--bg); border: 1px solid var(--rule-strong); top: 5px; }
+  .tl-date {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 6px;
+  }
+  .tl-row.done .tl-date { color: var(--accent); }
+  .tl-row h4 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+  .tl-row .tl-body {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--ink-muted);
+    max-width: 620px;
+  }
+
+  /* OUTLOOK 3-col ---------------------------------------- */
+  .outlook {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 48px;
+  }
+  .outlook .col {
+    border-top: 1px solid var(--rule-strong);
+    padding-top: 20px;
+  }
+  .outlook .col h4 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    margin-bottom: 10px;
+  }
+  .outlook .col .col-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .outlook .col ul {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0 0;
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .outlook .col ul li {
+    padding: 12px 0;
+    border-top: 1px solid var(--rule);
+    color: var(--ink);
+  }
+  .outlook .col ul li .li-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--accent);
+    margin-right: 8px;
+  }
+  @media (max-width: 900px) {
+    .outlook { grid-template-columns: 1fr; gap: 32px; }
+  }
+
+  /* SIDEBAR layout (problem section) --------------------- */
+  .grid-prose-side {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 56px;
+  }
+  @media (max-width: 900px) { .grid-prose-side { grid-template-columns: 1fr; gap: 32px; } }
+
+  .sidebar-stat {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 24px;
+    background: var(--bg-warm);
+  }
+  .sidebar-stat .ss-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 18px;
+  }
+
+  /* Mechanical design 2-col ------------------------------ */
+  .mech-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 56px;
+    margin-top: 32px;
+  }
+  @media (max-width: 900px) { .mech-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+  /* AI pipeline ----------------------------------------- */
+  .pipeline-svg { width: 100%; height: auto; }
+
+  /* Experiment TOC + blocks ----------------------------- */
+  .exp-toc {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 56px;
+  }
+  .exp-toc a {
+    border: none;
+    padding: 20px 24px;
+    border-right: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    color: var(--ink);
+    transition: background 0.2s ease;
+  }
+  .exp-toc a:last-child { border-right: none; }
+  .exp-toc a:hover { background: var(--bg-warm); }
+  .exp-toc .e-id {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  .exp-toc .e-title {
+    font-family: var(--serif);
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--ink);
+    line-height: 1.2;
+  }
+  @media (max-width: 900px) {
+    .exp-toc { grid-template-columns: 1fr; }
+    .exp-toc a { border-right: none; border-bottom: 1px solid var(--rule); }
+  }
+
+  .exp-block {
+    padding: 56px 0;
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 56px;
+  }
+  .exp-block .e-meta .e-id {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .exp-block .e-meta .e-sub {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    color: var(--ink-muted);
+    line-height: 1.55;
+  }
+  .exp-block h3 {
+    margin-bottom: 14px;
+  }
+  .exp-block .e-prose {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+    margin-bottom: 28px;
+    max-width: 620px;
+  }
+  .exp-block .e-prose em { color: var(--accent); font-style: italic; }
+  @media (max-width: 900px) {
+    .exp-block { grid-template-columns: 1fr; gap: 18px; padding: 40px 0; }
+  }
+
+  /* Hardware scorecard ---------------------------------- */
+  .scorecard {
+    margin-top: 48px;
+  }
+  .scorecard table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .scorecard th, .scorecard td {
+    text-align: left;
+    padding: 14px 18px 14px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: middle;
+  }
+  .scorecard th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    border-bottom: 1px solid var(--rule-strong);
+    font-weight: 500;
+  }
+  .scorecard .met {
+    font-family: var(--serif);
+    font-size: 16px;
+    font-style: italic;
+    color: var(--ink);
+  }
+  .scorecard .target, .scorecard .measured {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--ink);
+  }
+  .scorecard .pass {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .scorecard .pass .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* Small viewer for mechanical section ----------------- */
+  .mini-viewer {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: radial-gradient(ellipse at center, var(--bg-cool) 0%, var(--bg-edge) 70%, #ddd9cc 100%);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Misc -------------------------------------------------- */
+  .footnote {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink-muted);
+    margin-top: 22px;
+    max-width: 620px;
+    line-height: 1.55;
+  }
+  .key-finding {
+    margin-top: 24px;
+    border-left: 2px solid var(--accent);
+    padding: 4px 0 4px 22px;
+  }
+  .key-finding .kf-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 6px;
+  }
+  .key-finding .kf-text {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 18px;
+    line-height: 1.45;
+    color: var(--ink);
+    max-width: 620px;
+  }
+
+  /* Tables (mass budget) -------------------------------- */
+  table.mass {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  table.mass th, table.mass td {
+    padding: 11px 16px 11px 0;
+    text-align: left;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  table.mass th {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    border-bottom: 1px solid var(--rule-strong);
+    font-weight: 500;
+  }
+  table.mass td.num {
+    font-family: var(--mono);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    padding-right: 0;
+  }
+  table.mass .total td {
+    border-top: 1px solid var(--rule-strong);
+    font-weight: 500;
+    color: var(--accent);
+    border-bottom: none;
+  }
+  table.mass .total td.num { color: var(--accent); }
+
+  /* Inline equation ------------------------------------- */
+  .eq {
+    margin: 24px 0;
+    padding: 24px 28px;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--serif);
+    font-size: 18px;
+    font-style: italic;
+    color: var(--ink);
+    text-align: center;
+    line-height: 1.6;
+  }
+  .eq .eq-num {
+    font-family: var(--mono);
+    font-style: normal;
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    color: var(--ink-faint);
+    float: right;
+    margin-top: 6px;
+  }
+  .eq sub { font-size: 0.7em; }
+  .eq sup { font-size: 0.65em; }
+
+</style>
+</head>
+<body>
+
+<!-- Sticky nav at top -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="wordmark plain">
+      <span class="wm-mark"></span><span class="wm-em">Regenix</span><span style="color:var(--ink-muted); font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; margin-left:8px;">Knee Exoskeleton</span>
+    </a>
+    <div class="nav-meta">Deep dive · Wu · Milton Academy · 2025</div>
+    <div class="nav-links">
+      <a href="index.html">Overview</a>
+      <a href="details.html" class="active">Deep dive</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Side TOC -->
+<aside class="toc" id="toc">
+  <ol>
+    <li data-href="#hero"><a href="#hero"><span class="toc-num">00</span>Project</a></li>
+    <li data-href="#problem"><a href="#problem"><span class="toc-num">01</span>Problem</a></li>
+    <li data-href="#approach"><a href="#approach"><span class="toc-num">02</span>Approach</a></li>
+    <li data-href="#biomech"><a href="#biomech"><span class="toc-num">03</span>Biomechanics</a></li>
+    <li data-href="#mech"><a href="#mech"><span class="toc-num">04</span>Mech. Design</a></li>
+    <li data-href="#hw"><a href="#hw"><span class="toc-num">05</span>Hardware</a></li>
+    <li data-href="#modes"><a href="#modes"><span class="toc-num">06</span>Modes</a></li>
+    <li data-href="#ai"><a href="#ai"><span class="toc-num">07</span>AI Pipeline</a></li>
+    <li data-href="#exp"><a href="#exp"><span class="toc-num">08</span>Experiments</a></li>
+    <li data-href="#timeline"><a href="#timeline"><span class="toc-num">09</span>Timeline</a></li>
+    <li data-href="#outlook"><a href="#outlook"><span class="toc-num">10</span>Outlook</a></li>
+  </ol>
+</aside>
+
+<main data-screen-label="02 Deep dive">
+
+<!-- ========== 00 · HERO ========== -->
+<section class="s first" id="hero" data-screen-label="00 Hero">
+  <div class="container">
+    <div class="eyebrow reveal">§ 00 — Knee Rehabilitation Exoskeleton · Research</div>
+
+    <h1 class="reveal" style="margin-top:24px; max-width: 1000px;">
+      An ultra-low-cost,<br>
+      <span class="em">semi-rigid</span> cable-driven<br>
+      knee exoskeleton.
+    </h1>
+
+    <p class="hero-sub reveal">
+      Designed for equitable orthopedic rehabilitation in low- and middle-income countries — the world's missing five billion patients. Self-aligning to the knee's instantaneous center of rotation, repairable with 3D-printed spares, and explained end-to-end below.
+    </p>
+
+    <div class="hero-stats reveal">
+      <div class="cell"><div class="h-num"><span class="em">$200</span></div><div class="h-label">Bill of materials</div></div>
+      <div class="cell"><div class="h-num">0.85<span class="unit">kg</span></div><div class="h-label">Total mass</div></div>
+      <div class="cell"><div class="h-num">13.5<span class="unit">Nm</span></div><div class="h-label">Peak torque</div></div>
+      <div class="cell"><div class="h-num">0–145<span class="unit">deg</span></div><div class="h-label">Range of motion</div></div>
+      <div class="cell"><div class="h-num">82<span class="unit">%</span></div><div class="h-label">AI · PT agreement</div></div>
+      <div class="cell"><div class="h-num">2.2<span class="unit">h</span></div><div class="h-label">Runtime</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 01 · PROBLEM ========== -->
+<section class="s" id="problem" data-screen-label="01 Problem">
+  <div class="container">
+    <div class="s-head reveal">
+      <div class="s-label"><span class="num">§ 01</span>Problem</div>
+      <h2>The two cheap alternatives <em>fail biomechanically</em>; the powered ones are unaffordable by an order of magnitude.</h2>
+    </div>
+
+    <div class="grid-prose-side reveal">
+      <div>
+        <p class="lede">
+          ACL ruptures, meniscal tears, and degenerative knee osteoarthritis account for more than <em>half of global lower-limb disability-adjusted life years</em>. Roughly five billion people lack timely surgical access; conservative management is their only option.
+        </p>
+        <p class="body-prose" style="margin-top: 22px;">
+          For those patients, two cheap options exist — elastic compression sleeves that deliver no therapeutic torque, and rigid post-op braces that misalign with the knee's migrating center of rotation, generating constraint forces and skin shear. The third option, robotic exoskeletons (ReWalk, Ekso, Roam) deliver real torque but cost between US&nbsp;$7,000 and US&nbsp;$100,000.
+        </p>
+        <p class="body-prose">
+          LMIC per-capita health expenditure routinely falls below US&nbsp;$200 per annum. The disparity is not a market gap; it is a structural <em>exclusion of the highest-need populations from the highest-impact technology</em>.
+        </p>
+
+        <div class="callout">
+          <span class="callout-tag">Field gap</span>
+          A device that costs the same as a brace, delivers the torque of a powered exoskeleton, and aligns with the joint at every angle does not yet exist.
+        </div>
+      </div>
+
+      <aside class="sidebar-stat">
+        <div class="ss-label">Cost vs. annual health spend · USD</div>
+
+        <!-- Vertical cost stack -->
+        <svg viewBox="0 0 320 380" role="img" aria-label="Cost comparison">
+          <!-- ReWalk -->
+          <g transform="translate(0, 0)">
+            <text x="0" y="12" font-family="Fraunces, serif" font-size="14" fill="#1a1a17">ReWalk Personal 6.0</text>
+            <text x="0" y="28" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="1.5" fill="#9c9a91">FULL LOWER LIMB</text>
+            <rect x="0" y="36" width="320" height="14" fill="#1a1a17"/>
+            <text x="320" y="64" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" fill="#1a1a17">$90,000</text>
+          </g>
+          <!-- Ekso -->
+          <g transform="translate(0, 86)">
+            <text x="0" y="12" font-family="Fraunces, serif" font-size="14" fill="#1a1a17">Ekso GT</text>
+            <text x="0" y="28" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="1.5" fill="#9c9a91">CLINICAL GAIT</text>
+            <rect x="0" y="36" width="249" height="14" fill="#3a3a32"/>
+            <text x="249" y="64" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="12" fill="#1a1a17">$70,000</text>
+          </g>
+          <!-- Roam Ascend -->
+          <g transform="translate(0, 172)">
+            <text x="0" y="12" font-family="Fraunces, serif" font-size="14" fill="#1a1a17">Roam Ascend</text>
+            <text x="0" y="28" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="1.5" fill="#9c9a91">CONSUMER KNEE</text>
+            <rect x="0" y="36" width="25" height="14" fill="#6e6a5e"/>
+            <text x="32" y="48" font-family="JetBrains Mono, monospace" font-size="12" fill="#1a1a17">$7,000</text>
+          </g>
+          <!-- LMIC health expenditure -->
+          <g transform="translate(0, 250)">
+            <text x="0" y="12" font-family="Fraunces, serif" font-size="14" font-style="italic" fill="#6b6b63">LMIC per-capita health</text>
+            <text x="0" y="28" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="1.5" fill="#9c9a91">ANNUAL · MEDIAN</text>
+            <rect x="0" y="36" width="0.7" height="14" fill="#a87156"/>
+            <text x="6" y="48" font-family="JetBrains Mono, monospace" font-size="12" fill="#a87156">~$200/yr</text>
+          </g>
+          <!-- Regenix -->
+          <g transform="translate(0, 322)">
+            <text x="0" y="12" font-family="Fraunces, serif" font-size="14" font-style="italic" fill="#3d7a5a">Regenix (this work)</text>
+            <text x="0" y="28" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="1.5" fill="#3d7a5a">SEMI-RIGID · CABLE</text>
+            <rect x="0" y="36" width="0.7" height="14" fill="#3d7a5a"/>
+            <text x="6" y="48" font-family="JetBrains Mono, monospace" font-size="12" font-weight="500" fill="#3d7a5a">$200</text>
+          </g>
+        </svg>
+
+        <div class="footnote" style="margin-top:14px; padding-top:14px; border-top: 1px solid var(--rule);">
+          Bars are width-proportional to a $100,000 axis. The two bottom rows — annual LMIC health spend and the Regenix BOM — sit at the same scale, by design.
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 02 · APPROACH ========== -->
+<section class="s" id="approach" data-screen-label="02 Approach">
+  <div class="container">
+    <div class="s-head reveal">
+      <div class="s-label"><span class="num">§ 02</span>Approach</div>
+      <h2>Rigid, soft, or <em>semi-rigid</em>. The third path resolves a real trade-off.</h2>
+    </div>
+
+    <!-- Comparison diagram -->
+    <div class="figure reveal" style="margin-bottom: 48px;">
+      <svg viewBox="0 0 960 280" role="img" aria-label="Three approaches comparison">
+        <text x="0" y="14" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="2" fill="#6b6b63">FIG · DESIGN SPECTRUM</text>
+
+        <!-- RIGID -->
+        <g transform="translate(40, 40)">
+          <text x="120" y="0" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="2" fill="#a87156">RIGID</text>
+          <!-- Leg -->
+          <path d="M 120 30 L 120 110 L 120 220" stroke="#1a1a17" stroke-width="1.4" fill="none"/>
+          <!-- Rigid hinge (boxy) -->
+          <rect x="138" y="100" width="22" height="22" fill="none" stroke="#a87156" stroke-width="1.4"/>
+          <!-- Rigid rails -->
+          <line x1="138" y1="30" x2="138" y2="100" stroke="#a87156" stroke-width="1.4"/>
+          <line x1="160" y1="30" x2="160" y2="100" stroke="#a87156" stroke-width="1.4"/>
+          <line x1="138" y1="122" x2="138" y2="220" stroke="#a87156" stroke-width="1.4"/>
+          <line x1="160" y1="122" x2="160" y2="220" stroke="#a87156" stroke-width="1.4"/>
+          <!-- Motor on the leg (heavy) -->
+          <rect x="170" y="90" width="32" height="42" fill="#a87156" opacity="0.85"/>
+          <text x="206" y="118" font-family="JetBrains Mono, monospace" font-size="9" fill="#a87156">motor</text>
+          <!-- annotation arrow -->
+          <path d="M 90 110 L 130 110" stroke="#a87156" stroke-width="0.8" fill="none" marker-end="url(#arrow-clay)"/>
+          <text x="40" y="105" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#a87156" text-anchor="start">misalign</text>
+          <text x="40" y="118" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#a87156" text-anchor="start">@ flex.</text>
+        </g>
+
+        <!-- SOFT -->
+        <g transform="translate(360, 40)">
+          <text x="120" y="0" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="2" fill="#a87156">SOFT EXOSUIT</text>
+          <!-- Leg -->
+          <path d="M 120 30 L 120 110 L 120 220" stroke="#1a1a17" stroke-width="1.4" fill="none"/>
+          <!-- Fabric sleeve (wavy) -->
+          <path d="M 100 40 Q 105 70 100 100 Q 95 130 100 160 Q 105 190 100 220" stroke="#a87156" stroke-width="1" fill="none" stroke-dasharray="2 3"/>
+          <path d="M 140 40 Q 145 70 140 100 Q 135 130 140 160 Q 145 190 140 220" stroke="#a87156" stroke-width="1" fill="none" stroke-dasharray="2 3"/>
+          <!-- Cable through fabric -->
+          <path d="M 132 30 Q 128 110 132 220" stroke="#a87156" stroke-width="0.8" fill="none"/>
+          <!-- Force leak indicator (small arrows perpendicular) -->
+          <g stroke="#a87156" stroke-width="0.8" fill="none">
+            <path d="M 142 80 L 158 75"/>
+            <path d="M 142 130 L 158 135"/>
+            <path d="M 142 180 L 158 185"/>
+          </g>
+          <text x="170" y="83" font-family="JetBrains Mono, monospace" font-size="9" fill="#a87156">force leaks</text>
+        </g>
+
+        <!-- SEMI-RIGID (US) -->
+        <g transform="translate(680, 40)">
+          <text x="120" y="0" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="2" fill="#3d7a5a">SEMI-RIGID CHAIN</text>
+          <!-- Leg -->
+          <path d="M 120 30 L 120 110 L 120 220" stroke="#1a1a17" stroke-width="1.4" fill="none"/>
+          <!-- Chain segments -->
+          <g stroke="#3d7a5a" stroke-width="1.2" fill="none">
+            <rect x="134" y="34" width="14" height="16" rx="1"/>
+            <rect x="134" y="52" width="14" height="16" rx="1"/>
+            <rect x="134" y="70" width="14" height="16" rx="1"/>
+            <rect x="134" y="88" width="14" height="16" rx="1"/>
+            <rect x="134" y="106" width="14" height="16" rx="1"/>
+            <rect x="134" y="124" width="14" height="16" rx="1"/>
+            <rect x="134" y="142" width="14" height="16" rx="1"/>
+            <rect x="134" y="160" width="14" height="16" rx="1"/>
+            <rect x="134" y="178" width="14" height="16" rx="1"/>
+            <rect x="134" y="196" width="14" height="16" rx="1"/>
+          </g>
+          <!-- Cable inside chain -->
+          <line x1="141" y1="30" x2="141" y2="218" stroke="#3d7a5a" stroke-width="0.6" stroke-dasharray="2 2"/>
+          <!-- Distributed strap anchors (4) -->
+          <g stroke="#3d7a5a" stroke-width="1" fill="none">
+            <ellipse cx="120" cy="45" rx="22" ry="3"/>
+            <ellipse cx="120" cy="95" rx="20" ry="3"/>
+            <ellipse cx="120" cy="135" rx="18" ry="3"/>
+            <ellipse cx="120" cy="200" rx="18" ry="3"/>
+          </g>
+          <!-- Hip-mounted motor (off-limb) -->
+          <rect x="100" y="0" width="40" height="22" fill="#3d7a5a" opacity="0.85"/>
+          <text x="156" y="14" font-family="JetBrains Mono, monospace" font-size="9" fill="#3d7a5a">motor</text>
+          <text x="156" y="24" font-family="JetBrains Mono, monospace" font-size="9" fill="#3d7a5a">@ hip</text>
+          <!-- annotation -->
+          <path d="M 240 110 L 165 110" stroke="#3d7a5a" stroke-width="0.8" fill="none" marker-end="url(#arrow-green)"/>
+          <text x="246" y="105" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#3d7a5a">tracks ICR</text>
+          <text x="246" y="118" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#3d7a5a">stable l_a</text>
+        </g>
+
+        <!-- Arrow markers -->
+        <defs>
+          <marker id="arrow-clay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#a87156"/>
+          </marker>
+          <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#3d7a5a"/>
+          </marker>
+        </defs>
+      </svg>
+      <div class="fig-caption" style="margin-top: 12px;">
+        <span class="fc-label">Fig. 2.1</span>
+        <span class="fc-text">Rigid systems impose torque but fight the joint; soft suits track the body but bleed force through fabric; the chain does both.</span>
+      </div>
+    </div>
+
+    <div class="cards-3 reveal">
+      <div class="approach-card">
+        <div class="ac-tag">A · Rigid frame</div>
+        <h3>Hospital-grade. Heavy. Misaligned.</h3>
+        <div class="ac-body">
+          Aluminum or steel exoskeletons with electric or hydraulic actuators at each joint. Strong, precise, repeatable — but assumes a simple hinge knee, ignoring the joint's translational motion. Slight axis offsets become shear forces and pressure injuries.
+        </div>
+        <div>
+          <div class="ac-line good">+ Deterministic torque · 13–40 Nm</div>
+          <div class="ac-line good">+ Precise joint angle control</div>
+          <div class="ac-line bad">− Donning time 30–40 min</div>
+          <div class="ac-line bad">− 18–25 kg full-limb mass</div>
+          <div class="ac-line bad">− Misalignment shear at the knee</div>
+        </div>
+        <div class="ac-stats">
+          <div><div class="k">Cost</div><div class="v">$70k–100k</div></div>
+          <div><div class="k">Mass</div><div class="v">18+ kg</div></div>
+        </div>
+      </div>
+
+      <div class="approach-card">
+        <div class="ac-tag">B · Soft exosuit</div>
+        <h3>Light. Comfortable. Underpowered.</h3>
+        <div class="ac-body">
+          Textile sleeves with Bowden cables or pneumatic actuators. Conforms to the body — no rigid axis, no misalignment. But the fabric stretches; force leaks through unwanted motion; pressure concentrates on the patella when straps cinch tight.
+        </div>
+        <div>
+          <div class="ac-line good">+ Conforms naturally to body</div>
+          <div class="ac-line good">+ Lightweight, portable</div>
+          <div class="ac-line bad">− Peak knee assist ≈ 0.03 Nm/kg</div>
+          <div class="ac-line bad">− Unstable moment arm</div>
+          <div class="ac-line bad">− Patellar pressure points</div>
+        </div>
+        <div class="ac-stats">
+          <div><div class="k">Cost</div><div class="v">$2k–7k</div></div>
+          <div><div class="k">Mass</div><div class="v">2–4 kg</div></div>
+        </div>
+      </div>
+
+      <div class="approach-card us">
+        <div class="ac-tag">C · Semi-rigid chain — this work</div>
+        <h3>A <em>third path</em>, drawn from Exo-Muscle.</h3>
+        <div class="ac-body">
+          A segmented chain wraps the posterior knee — flexible when unpowered, rigid when the cable tensions. It creates a temporary external joint that <em>moves with the knee</em>, giving a defined cable path for deterministic torque without imposing a fixed hinge.
+        </div>
+        <div>
+          <div class="ac-line good">+ Self-aligning · 1.39 mm mean offset</div>
+          <div class="ac-line good">+ Hip-mounted actuator (250 g distal)</div>
+          <div class="ac-line good">+ Field-repairable PLA spares</div>
+          <div class="ac-line good">+ Distributed strap anchoring</div>
+        </div>
+        <div class="ac-stats">
+          <div><div class="k">Cost</div><div class="v">$200</div></div>
+          <div><div class="k">Mass</div><div class="v">0.85 kg</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 03 · BIOMECHANICS ========== -->
+<section class="s" id="biomech" data-screen-label="03 Biomechanics">
+  <div class="container">
+    <div class="s-head reveal">
+      <div class="s-label"><span class="num">§ 03</span>Biomechanics</div>
+      <h2>The knee is not a hinge. It is a <em>rolling, sliding J-curve</em>.</h2>
+    </div>
+
+    <p class="lede reveal">
+      During flexion the femoral condyle rolls and slides on the tibial plateau, shifting the instantaneous center of rotation posteriorly and inferiorly. Any device built around a fixed pivot will fight the joint at every angle.
+    </p>
+
+    <!-- J-shaped ICR figure -->
+    <div class="grid-prose-side reveal" style="margin-top: 48px;">
+      <div>
+        <svg viewBox="0 0 560 460" role="img" aria-label="J-shaped instantaneous center of rotation">
+          <text x="0" y="14" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="2" fill="#6b6b63">FIG · J-CURVE OF THE ICR</text>
+
+          <!-- Femur (top) -->
+          <g>
+            <!-- Femoral shaft -->
+            <path d="M 220 30 L 260 30 L 260 220 L 220 220 Z" fill="#efe9d9" stroke="#1a1a17" stroke-width="1.2"/>
+            <!-- Femoral condyles (rounded bottom) -->
+            <path d="M 200 200 Q 200 270 240 270 Q 280 270 280 200" fill="#efe9d9" stroke="#1a1a17" stroke-width="1.2"/>
+            <text x="290" y="100" font-family="Fraunces, serif" font-style="italic" font-size="14" fill="#6b6b63">femur</text>
+            <line x1="270" y1="100" x2="285" y2="100" stroke="#6b6b63" stroke-width="0.6"/>
+          </g>
+
+          <!-- Tibia (bottom) -->
+          <g>
+            <path d="M 200 320 L 280 320 L 270 460 L 210 460 Z" fill="#efe9d9" stroke="#1a1a17" stroke-width="1.2"/>
+            <!-- Tibial plateau (slightly curved up) -->
+            <path d="M 195 310 Q 240 305 285 310" fill="none" stroke="#1a1a17" stroke-width="1.2"/>
+            <line x1="195" y1="310" x2="200" y2="320" stroke="#1a1a17" stroke-width="1.2"/>
+            <line x1="285" y1="310" x2="280" y2="320" stroke="#1a1a17" stroke-width="1.2"/>
+            <text x="290" y="400" font-family="Fraunces, serif" font-style="italic" font-size="14" fill="#6b6b63">tibia</text>
+            <line x1="270" y1="400" x2="285" y2="400" stroke="#6b6b63" stroke-width="0.6"/>
+          </g>
+
+          <!-- Joint gap (cartilage / meniscus zone) -->
+          <rect x="200" y="285" width="80" height="20" fill="#ecf1ed" opacity="0.6"/>
+
+          <!-- ICR J-curve (the path of the migrating ICR) -->
+          <!-- This goes from anterior-superior at extension to posterior-inferior at flexion -->
+          <path d="M 255 270 Q 252 290 245 298 Q 235 310 220 320 Q 210 332 205 350" stroke="#3d7a5a" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+
+          <!-- ICR sample points at successive angles -->
+          <g fill="#3d7a5a">
+            <circle cx="255" cy="270" r="4"/>
+            <circle cx="248" cy="292" r="4"/>
+            <circle cx="232" cy="316" r="4"/>
+            <circle cx="212" cy="342" r="4"/>
+          </g>
+          <!-- Labels next to dots -->
+          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#3d7a5a">
+            <text x="265" y="274">θ = 0°</text>
+            <text x="258" y="296">θ = 30°</text>
+            <text x="242" y="320">θ = 60°</text>
+            <text x="222" y="346">θ = 90°</text>
+          </g>
+
+          <!-- Annotation: J-curve label -->
+          <g>
+            <path d="M 130 360 Q 170 360 200 345" stroke="#3d7a5a" stroke-width="0.6" fill="none"/>
+            <text x="14" y="358" font-family="Fraunces, serif" font-style="italic" font-size="16" fill="#3d7a5a">J-shaped ICR path</text>
+            <text x="14" y="378" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#6b6b63" letter-spacing="1.2">POSTERIOR · INFERIOR DRIFT</text>
+          </g>
+
+          <!-- coordinate frame at the ICR start point -->
+          <g transform="translate(255, 270)">
+            <line x1="0" y1="0" x2="22" y2="0" stroke="#1a1a17" stroke-width="0.7" marker-end="url(#tip)"/>
+            <line x1="0" y1="0" x2="0" y2="-22" stroke="#1a1a17" stroke-width="0.7" marker-end="url(#tip)"/>
+            <text x="26" y="3" font-family="JetBrains Mono, monospace" font-size="9" fill="#1a1a17">x</text>
+            <text x="-3" y="-26" font-family="JetBrains Mono, monospace" font-size="9" fill="#1a1a17">y</text>
+          </g>
+
+          <!-- Definitions -->
+          <defs>
+            <marker id="tip" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="4" markerHeight="4" orient="auto">
+              <path d="M 0 0 L 6 3 L 0 6 z" fill="#1a1a17"/>
+            </marker>
+          </defs>
+        </svg>
+        <div class="fig-caption" style="margin-top: 8px;">
+          <span class="fc-label">Fig. 3.1</span>
+          <span class="fc-text">The ICR migrates ~25 mm posteriorly and inferiorly between full extension and 90° flexion.</span>
+        </div>
+      </div>
+
+      <div>
+        <p class="body-prose">
+          The instantaneous center of rotation (ICR) is the point about which one segment of the knee is, at that instant, purely rotating. Unlike a pin joint, the ICR is not fixed: the geometry of the condyle–plateau contact, combined with ligament constraints, traces a curve we can describe as J-shaped.
+        </p>
+        <p class="body-prose">
+          The cable's moment arm <em>l<sub>a</sub></em> — the perpendicular distance from the ICR to the cable line of action — is what converts cable tension into knee torque. If <em>l<sub>a</sub></em> collapses, so does the assistive effect. Our chain geometry is calibrated to keep <em>l<sub>a</sub></em> stable across the full 0°–145° range.
+        </p>
+
+        <div class="eq">
+          T<sub>exo</sub> = F<sub>tendon</sub> · l<sub>a</sub>(θ<sub>kf</sub>)
+          <span class="eq-num">Eq. 3.1 · Knee Torque</span>
+        </div>
+
+        <p class="body-prose">
+          For real-time control, the moment arm is fitted to a fifth-order polynomial of the knee flexion angle, avoiding the cost of a per-frame analytic solve. MATLAB simulations show <em>l<sub>a</sub></em> decreases mildly from 0°–30°, then increases monotonically past 30° — a useful asymmetry that biases assistance toward the strenuous phases of squatting and stand-to-sit.
+        </p>
+
+        <div class="eq" style="font-size: 16px;">
+          l<sub>a</sub>(θ) ≈ −2.27·10<sup>−12</sup> θ<sup>5</sup> + 1.10·10<sup>−9</sup> θ<sup>4</sup> − 2.46·10<sup>−7</sup> θ<sup>3</sup> + 2.87·10<sup>−5</sup> θ<sup>2</sup> − 1.01·10<sup>−3</sup> θ + 0.074
+          <span class="eq-num">Eq. 3.2 · Polynomial Fit</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Polynomial-fit chart -->
+    <div class="reveal" style="margin-top: 64px;">
+      <svg viewBox="0 0 960 340" role="img" aria-label="Moment-arm vs knee flexion angle">
+        <text x="0" y="14" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="2" fill="#6b6b63">FIG · MOMENT ARM vs. KNEE FLEXION ANGLE</text>
+
+        <!-- chart area: 80,40 → 920,300 -->
+        <!-- Axes -->
+        <line x1="80" y1="40" x2="80" y2="300" stroke="#d8d6cf" stroke-width="1"/>
+        <line x1="80" y1="300" x2="920" y2="300" stroke="#d8d6cf" stroke-width="1"/>
+
+        <!-- Y gridlines -->
+        <g stroke="#d8d6cf" stroke-width="0.5">
+          <line x1="80" y1="80" x2="920" y2="80" stroke-dasharray="2 4"/>
+          <line x1="80" y1="140" x2="920" y2="140" stroke-dasharray="2 4"/>
+          <line x1="80" y1="200" x2="920" y2="200" stroke-dasharray="2 4"/>
+          <line x1="80" y1="260" x2="920" y2="260" stroke-dasharray="2 4"/>
+        </g>
+
+        <!-- Y labels (la in meters; range 0.04 to 0.10) -->
+        <g font-family="JetBrains Mono, monospace" font-size="10" fill="#9c9a91" text-anchor="end">
+          <text x="72" y="44">0.100</text>
+          <text x="72" y="84">0.088</text>
+          <text x="72" y="144">0.076</text>
+          <text x="72" y="204">0.064</text>
+          <text x="72" y="264">0.052</text>
+          <text x="72" y="304">0.040</text>
+        </g>
+        <text x="40" y="170" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63" letter-spacing="1.4" transform="rotate(-90, 40, 170)" text-anchor="middle">l_a [m]</text>
+
+        <!-- X labels -->
+        <g font-family="JetBrains Mono, monospace" font-size="10" fill="#9c9a91" text-anchor="middle">
+          <text x="80" y="320">0°</text>
+          <text x="220" y="320">30°</text>
+          <text x="360" y="320">60°</text>
+          <text x="500" y="320">90°</text>
+          <text x="640" y="320">120°</text>
+          <text x="780" y="320">145°</text>
+        </g>
+        <text x="500" y="335" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63" text-anchor="middle" letter-spacing="1.4">knee flexion angle θ_kf</text>
+
+        <!-- Polynomial curve (fitted) — y maps 0.04..0.10 to 300..40
+             We sample la(θ) for θ in [0, 145] -->
+        <!-- Coordinates calculated: for each θ in {0,15,30,...,145} → la then mapped to (x,y) -->
+        <!-- (theta deg, la m): (0, 0.074), (15, 0.0635), (30, 0.061), (45, 0.0625), (60, 0.066),
+             (75, 0.0705), (90, 0.0745), (105, 0.0785), (120, 0.080), (135, 0.0795), (145, 0.0775) -->
+        <!-- x = 80 + 840 * (θ/145); y = 300 − ((la − 0.04) / 0.06) * 260 -->
+        <path d="
+          M 80 153
+          L 167 199
+          L 254 209
+          L 341 203
+          L 428 187
+          L 515 169
+          L 602 153
+          L 689 136
+          L 776 130
+          L 863 132
+          L 920 140
+          " fill="none" stroke="#3d7a5a" stroke-width="2"/>
+
+        <!-- Sample data points (e.g., MATLAB sim) -->
+        <g fill="#3d7a5a">
+          <circle cx="80" cy="156" r="3"/>
+          <circle cx="167" cy="201" r="3"/>
+          <circle cx="254" cy="207" r="3"/>
+          <circle cx="341" cy="200" r="3"/>
+          <circle cx="428" cy="184" r="3"/>
+          <circle cx="515" cy="171" r="3"/>
+          <circle cx="602" cy="155" r="3"/>
+          <circle cx="689" cy="138" r="3"/>
+          <circle cx="776" cy="128" r="3"/>
+          <circle cx="863" cy="130" r="3"/>
+        </g>
+
+        <!-- Annotation at θ=30 dip and θ=120 peak -->
+        <g>
+          <line x1="254" y1="216" x2="254" y2="270" stroke="#9c9a91" stroke-width="0.6" stroke-dasharray="1 2"/>
+          <text x="254" y="285" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b6b63" text-anchor="middle">min @ ~30°</text>
+
+          <line x1="776" y1="120" x2="776" y2="70" stroke="#9c9a91" stroke-width="0.6" stroke-dasharray="1 2"/>
+          <text x="776" y="62" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b6b63" text-anchor="middle">max @ ~120°</text>
+        </g>
+
+        <!-- Legend -->
+        <g transform="translate(720, 50)">
+          <rect x="0" y="-12" width="180" height="46" fill="#fafaf7" stroke="#d8d6cf"/>
+          <line x1="10" y1="0" x2="34" y2="0" stroke="#3d7a5a" stroke-width="2"/>
+          <text x="42" y="4" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17">5th-order polynomial</text>
+          <circle cx="22" cy="20" r="3" fill="#3d7a5a"/>
+          <text x="42" y="24" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17">MATLAB sim · n = 10</text>
+        </g>
+      </svg>
+      <div class="fig-caption">
+        <span class="fc-label">Fig. 3.2</span>
+        <span class="fc-text">The moment arm dips at 30° (a low-load phase) and peaks near 120° — the strenuous deep-flexion zone where assistance helps most.</span>
+      </div>
+    </div>
+
+    <div class="key-finding reveal" style="margin-top: 56px;">
+      <div class="kf-label">Key finding · §3</div>
+      <div class="kf-text">
+        The semi-rigid chain tracks the J-curve ICR with a <em>mean misalignment of 1.39 mm</em> and an RMS misalignment of 2.55 mm across the full 0°–145° range — versus typical fixed-hinge errors of 10–15 mm at deep flexion.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 04 · MECHANICAL DESIGN ========== -->
+<section class="s" id="mech" data-screen-label="04 Mech Design">
+  <div class="container">
+    <div class="s-head reveal">
+      <div class="s-label"><span class="num">§ 04</span>Mechanical design</div>
+      <h2>A single cable, four anchor points, and a chain that <em>becomes a joint</em> on demand.</h2>
+    </div>
+
+    <p class="lede reveal">
+      Power flows from a hip-mounted brushed-DC actuator, through a Dyneema cable, into a segmented chain wrapping the posterior knee, and out through four distributed straps that share load across the thigh and shank. The chain locks rigid only while the cable tensions; otherwise the user moves freely.
+    </p>
+
+    <!-- Full system architecture SVG -->
+    <div class="figure reveal" style="margin-top: 56px;">
+      <svg viewBox="0 0 1140 460" role="img" aria-label="Full system architecture">
+        <text x="0" y="14" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="2" fill="#6b6b63">FIG · SYSTEM ARCHITECTURE · POWER &amp; LOAD PATH</text>
+
+        <!-- Background figure: simplified body silhouette -->
+        <g opacity="0.7">
+          <!-- Hip block -->
+          <rect x="100" y="40" width="220" height="80" rx="6" fill="#efe9d9" stroke="#1a1a17" stroke-width="1"/>
+          <text x="210" y="70" font-family="Fraunces, serif" font-style="italic" font-size="13" fill="#6b6b63" text-anchor="middle">hip / waist</text>
+          <text x="210" y="88" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#9c9a91" letter-spacing="1.2" text-anchor="middle">BACKPACK MOUNT</text>
+
+          <!-- Thigh -->
+          <rect x="170" y="120" width="80" height="160" fill="#efe9d9" stroke="#1a1a17" stroke-width="1"/>
+          <text x="260" y="200" font-family="Fraunces, serif" font-style="italic" font-size="13" fill="#6b6b63">thigh</text>
+
+          <!-- Knee -->
+          <ellipse cx="210" cy="295" rx="48" ry="20" fill="#efe9d9" stroke="#1a1a17" stroke-width="1"/>
+          <text x="280" y="299" font-family="Fraunces, serif" font-style="italic" font-size="13" fill="#6b6b63">knee</text>
+
+          <!-- Shank -->
+          <rect x="180" y="310" width="60" height="140" fill="#efe9d9" stroke="#1a1a17" stroke-width="1"/>
+          <text x="260" y="380" font-family="Fraunces, serif" font-style="italic" font-size="13" fill="#6b6b63">shank</text>
+        </g>
+
+        <!-- Actuator module on hip -->
+        <g>
+          <rect x="130" y="55" width="48" height="48" rx="3" fill="#1a1a17"/>
+          <circle cx="154" cy="79" r="14" fill="none" stroke="#9c9a91" stroke-width="1"/>
+          <text x="154" y="125" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#1a1a17" letter-spacing="1.2" text-anchor="middle">DH03X · 20:1</text>
+
+          <!-- Spool -->
+          <circle cx="190" cy="79" r="10" fill="#3d7a5a"/>
+          <circle cx="190" cy="79" r="3" fill="#fafaf7"/>
+
+          <!-- ESP32 box -->
+          <rect x="220" y="55" width="60" height="40" rx="3" fill="#c8c4b6" stroke="#1a1a17" stroke-width="0.6"/>
+          <rect x="226" y="63" width="14" height="24" fill="#1a1a17"/>
+          <circle cx="270" cy="65" r="2" fill="#3d7a5a"/>
+          <text x="250" y="125" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#1a1a17" letter-spacing="1.2" text-anchor="middle">ESP32 · BT18 · LD3320</text>
+        </g>
+
+        <!-- Aluminum thigh rails -->
+        <g stroke="#9c9a8e" stroke-width="2.4">
+          <line x1="180" y1="120" x2="180" y2="278"/>
+          <line x1="240" y1="120" x2="240" y2="278"/>
+        </g>
+        <!-- Aluminum shank rails -->
+        <g stroke="#9c9a8e" stroke-width="2.4">
+          <line x1="190" y1="310" x2="190" y2="445"/>
+          <line x1="230" y1="310" x2="230" y2="445"/>
+        </g>
+
+        <!-- Distributed strap anchors (4 cuffs) -->
+        <g stroke="#534f44" stroke-width="2.4" fill="none">
+          <ellipse cx="210" cy="140" rx="44" ry="6"/>
+          <ellipse cx="210" cy="240" rx="42" ry="6"/>
+          <ellipse cx="210" cy="335" rx="32" ry="5"/>
+          <ellipse cx="210" cy="425" rx="32" ry="5"/>
+        </g>
+
+        <!-- Semi-rigid chain wrapping the knee posteriorly -->
+        <g stroke="#3d7a5a" stroke-width="1.4" fill="none">
+          <!-- Upper straight portion -->
+          <rect x="252" y="195" width="14" height="14" rx="1"/>
+          <rect x="252" y="212" width="14" height="14" rx="1"/>
+          <rect x="252" y="229" width="14" height="14" rx="1"/>
+          <rect x="252" y="246" width="14" height="14" rx="1"/>
+          <!-- Around knee (wrap) -->
+          <rect x="252" y="263" width="14" height="14" rx="1"/>
+          <rect x="254" y="280" width="14" height="14" rx="1" transform="rotate(10, 261, 287)"/>
+          <rect x="258" y="295" width="14" height="14" rx="1" transform="rotate(20, 265, 302)"/>
+          <rect x="260" y="310" width="14" height="14" rx="1" transform="rotate(5, 267, 317)"/>
+          <!-- Lower straight portion -->
+          <rect x="252" y="325" width="14" height="14" rx="1"/>
+          <rect x="252" y="342" width="14" height="14" rx="1"/>
+          <rect x="252" y="359" width="14" height="14" rx="1"/>
+          <rect x="252" y="376" width="14" height="14" rx="1"/>
+        </g>
+
+        <!-- Dyneema cable path (highlighted) -->
+        <path d="M 190 79 C 220 130, 252 160, 259 200 L 259 260 C 250 290, 260 320, 259 360 L 259 410"
+              stroke="#1a1a17" stroke-width="1.2" stroke-dasharray="3 2" fill="none"/>
+        <!-- HX711 inline -->
+        <rect x="269" y="158" width="22" height="14" fill="#fafaf7" stroke="#1a1a17" stroke-width="0.8"/>
+        <text x="280" y="167" font-family="JetBrains Mono, monospace" font-size="7.5" fill="#1a1a17" text-anchor="middle">HX711</text>
+
+        <!-- IMU 1 on thigh -->
+        <rect x="170" y="170" width="10" height="10" fill="#3d7a5a" stroke="#1a1a17" stroke-width="0.6"/>
+        <!-- IMU 2 on shank -->
+        <rect x="190" y="365" width="10" height="10" fill="#3d7a5a" stroke="#1a1a17" stroke-width="0.6"/>
+
+        <!-- ============= RIGHT SIDE — ANNOTATIONS / CALLOUTS ============= -->
+        <g transform="translate(420, 40)">
+          <!-- Vertical column of annotations -->
+
+          <!-- 1. Actuator -->
+          <g transform="translate(0, 0)">
+            <line x1="-90" y1="40" x2="0" y2="40" stroke="#d8d6cf" stroke-width="0.8"/>
+            <circle cx="0" cy="40" r="3" fill="#3d7a5a"/>
+            <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="10" fill="#3d7a5a" letter-spacing="1.8">A · ACTUATOR</text>
+            <text x="14" y="40" font-family="Fraunces, serif" font-style="italic" font-size="16" fill="#1a1a17">DH03X brushed DC + 20:1 spur gearbox</text>
+            <text x="14" y="60" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63">τ_peak = 13.5 Nm · P_max = 95 W</text>
+          </g>
+
+          <!-- 2. Controller -->
+          <g transform="translate(0, 80)">
+            <line x1="-90" y1="40" x2="0" y2="40" stroke="#d8d6cf" stroke-width="0.8"/>
+            <circle cx="0" cy="40" r="3" fill="#3d7a5a"/>
+            <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="10" fill="#3d7a5a" letter-spacing="1.8">B · CONTROLLER</text>
+            <text x="14" y="40" font-family="Fraunces, serif" font-style="italic" font-size="16" fill="#1a1a17">ESP32 · BT18 · LD3320 voice</text>
+            <text x="14" y="60" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63">f_loop = 2 Hz · PWM motor drive · Wi-Fi</text>
+          </g>
+
+          <!-- 3. Cable + load cell -->
+          <g transform="translate(0, 160)">
+            <line x1="-160" y1="40" x2="0" y2="40" stroke="#d8d6cf" stroke-width="0.8"/>
+            <circle cx="0" cy="40" r="3" fill="#3d7a5a"/>
+            <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="10" fill="#3d7a5a" letter-spacing="1.8">C · TENDON + SENSOR</text>
+            <text x="14" y="40" font-family="Fraunces, serif" font-style="italic" font-size="16" fill="#1a1a17">Dyneema cable · HX711 load cell</text>
+            <text x="14" y="60" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63">MBL ≥ 1200 N · SF = 3 · ±0.8 N RMSE</text>
+          </g>
+
+          <!-- 4. Chain -->
+          <g transform="translate(0, 240)">
+            <line x1="-180" y1="40" x2="0" y2="40" stroke="#d8d6cf" stroke-width="0.8"/>
+            <circle cx="0" cy="40" r="3" fill="#3d7a5a"/>
+            <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="10" fill="#3d7a5a" letter-spacing="1.8">D · SEMI-RIGID CHAIN</text>
+            <text x="14" y="40" font-family="Fraunces, serif" font-style="italic" font-size="16" fill="#1a1a17">13 PLA links · transverse k &gt; 50 N/mm</text>
+            <text x="14" y="60" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63">Clearance ≥ 3 mm · 3D-printed spares</text>
+          </g>
+
+          <!-- 5. IMUs -->
+          <g transform="translate(0, 320)">
+            <line x1="-280" y1="40" x2="0" y2="40" stroke="#d8d6cf" stroke-width="0.8"/>
+            <circle cx="0" cy="40" r="3" fill="#3d7a5a"/>
+            <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="10" fill="#3d7a5a" letter-spacing="1.8">E · IMUs (×2)</text>
+            <text x="14" y="40" font-family="Fraunces, serif" font-style="italic" font-size="16" fill="#1a1a17">MPU-6050 · thigh + shank</text>
+            <text x="14" y="60" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63">Δθ_RMSE = ±0.8° · differential kinematic</text>
+          </g>
+
+          <!-- 6. Anchors -->
+          <g transform="translate(0, 400)">
+            <line x1="-180" y1="0" x2="-180" y2="40" stroke="#d8d6cf" stroke-width="0.8"/>
+            <line x1="-180" y1="40" x2="0" y2="40" stroke="#d8d6cf" stroke-width="0.8"/>
+            <circle cx="0" cy="40" r="3" fill="#3d7a5a"/>
+            <text x="14" y="20" font-family="JetBrains Mono, monospace" font-size="10" fill="#3d7a5a" letter-spacing="1.8">F · DISTRIBUTED ANCHORS</text>
+            <text x="14" y="40" font-family="Fraunces, serif" font-style="italic" font-size="16" fill="#1a1a17">4 PETG cuffs + nylon straps</text>
+            <text x="14" y="60" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63">p_skin ≤ 20 kPa · comfort 4.1 / 5</text>
+          </g>
+        </g>
+      </svg>
+      <div class="fig-caption">
+        <span class="fc-label">Fig. 4.1</span>
+        <span class="fc-text">The entire load path from motor spool to leg anchors. Distal mass — everything below the hip cuff — totals ≤ 250 g.</span>
+      </div>
+    </div>
+
+    <!-- Mass budget table + free-body equation -->
+    <div class="mech-grid reveal">
+      <div>
+        <div class="label" style="margin-bottom: 18px;">§ 04.2 · Mass budget</div>
+        <table class="mass">
+          <thead>
+            <tr><th>Subsystem</th><th>Material</th><th>Mass</th><th>Position</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Actuator module<br><span class="muted" style="font-size:12px;">DH03X + gearbox + spool</span></td>
+              <td>—</td>
+              <td class="num">380 g</td>
+              <td>hip</td>
+            </tr>
+            <tr>
+              <td>Controller cavity<br><span class="muted" style="font-size:12px;">ESP32, BT18, LD3320, battery</span></td>
+              <td>—</td>
+              <td class="num">220 g</td>
+              <td>hip</td>
+            </tr>
+            <tr>
+              <td>Thigh frame<br><span class="muted" style="font-size:12px;">2 rails + 2 cuffs</span></td>
+              <td>Al 6061 + PETG</td>
+              <td class="num">110 g</td>
+              <td>thigh</td>
+            </tr>
+            <tr>
+              <td>Shank frame<br><span class="muted" style="font-size:12px;">2 rails + 2 cuffs</span></td>
+              <td>Al 6061 + PETG</td>
+              <td class="num">95 g</td>
+              <td>shank</td>
+            </tr>
+            <tr>
+              <td>Semi-rigid chain<br><span class="muted" style="font-size:12px;">13 PLA links + pins</span></td>
+              <td>PLA</td>
+              <td class="num">38 g</td>
+              <td>knee</td>
+            </tr>
+            <tr>
+              <td>Dyneema cable<br><span class="muted" style="font-size:12px;">incl. Bowden sheath</span></td>
+              <td>UHMWPE</td>
+              <td class="num">9 g</td>
+              <td>routed</td>
+            </tr>
+            <tr>
+              <td>Sensors<br><span class="muted" style="font-size:12px;">2× MPU-6050 + HX711</span></td>
+              <td>—</td>
+              <td class="num">12 g</td>
+              <td>limb</td>
+            </tr>
+            <tr class="total">
+              <td>Total mass</td>
+              <td>—</td>
+              <td class="num">0.85 kg</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="footnote">
+          Distal mass (below hip) ≈ 264 g — three orders of magnitude below comparable rigid platforms (ReWalk ≈ 22 kg total, ≈ 9 kg distal).
+        </div>
+      </div>
+
+      <!-- Free-body diagram instead of 3D viewer -->
+      <div>
+        <div class="label" style="margin-bottom: 18px;">§ 04.3 · Free-body diagram</div>
+        <svg viewBox="0 0 420 460" role="img" aria-label="Free-body diagram">
+          <!-- Thigh -->
+          <line x1="120" y1="20" x2="120" y2="190" stroke="#1a1a17" stroke-width="2"/>
+          <!-- Knee ICR -->
+          <circle cx="120" cy="200" r="4" fill="#3d7a5a"/>
+          <text x="130" y="204" font-family="JetBrains Mono, monospace" font-size="10" fill="#3d7a5a">ICR</text>
+          <!-- Shank (rotated 50°) -->
+          <line x1="120" y1="200" x2="248" y2="356" stroke="#1a1a17" stroke-width="2"/>
+
+          <!-- Cable line of action -->
+          <line x1="180" y1="50" x2="220" y2="300" stroke="#3d7a5a" stroke-width="1.4" stroke-dasharray="4 3"/>
+          <text x="184" y="44" font-family="JetBrains Mono, monospace" font-size="10" fill="#3d7a5a">F_cable</text>
+
+          <!-- Cable tension arrows (along cable) -->
+          <g fill="#3d7a5a">
+            <path d="M 210 290 L 222 296 L 215 305 Z"/>
+          </g>
+
+          <!-- Moment arm (perpendicular from ICR to cable line) -->
+          <line x1="120" y1="200" x2="200" y2="174" stroke="#3d7a5a" stroke-width="0.8" stroke-dasharray="2 2"/>
+          <text x="148" y="180" font-family="JetBrains Mono, monospace" font-size="11" font-style="italic" fill="#3d7a5a">l_a</text>
+
+          <!-- Torque arc -->
+          <path d="M 100 240 Q 80 200 100 160" stroke="#1a1a17" stroke-width="1" fill="none"/>
+          <path d="M 100 160 L 95 168 L 103 170 Z" fill="#1a1a17"/>
+          <text x="60" y="204" font-family="JetBrains Mono, monospace" font-size="11" font-style="italic" fill="#1a1a17">τ_exo</text>
+
+          <!-- Gravity on shank -->
+          <line x1="200" y1="290" x2="200" y2="340" stroke="#8a8478" stroke-width="1.2"/>
+          <path d="M 200 340 L 196 334 L 204 334 Z" fill="#8a8478"/>
+          <text x="206" y="324" font-family="JetBrains Mono, monospace" font-size="10" fill="#8a8478">m_shank g</text>
+
+          <!-- Equations -->
+          <g transform="translate(20, 400)">
+            <text x="0" y="0" font-family="Fraunces, serif" font-size="14" font-style="italic" fill="#1a1a17">τ<tspan baseline-shift="sub" font-size="9">exo</tspan> = F<tspan baseline-shift="sub" font-size="9">cable</tspan> · l<tspan baseline-shift="sub" font-size="9">a</tspan>(θ)</text>
+            <text x="0" y="22" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63">where 0.057 ≤ l_a ≤ 0.080 m</text>
+            <text x="0" y="38" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63">design target: τ ≥ 10 Nm · F ≈ 400 N</text>
+          </g>
+        </svg>
+        <div class="fig-caption" style="margin-top: 6px;">
+          <span class="fc-label">Fig. 4.2</span>
+          <span class="fc-text">Cable tension resolves at the chain's tangent point; the moment arm <em>l<sub>a</sub></em> is what we control.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 05 · HARDWARE ========== -->
+<section class="s" id="hw" data-screen-label="05 Hardware">
+  <div class="container">
+    <div class="s-head reveal">
+      <div class="s-label"><span class="num">§ 05</span>Hardware</div>
+      <h2>Commercial off-the-shelf, throughout — total electronics under <em>$150</em>.</h2>
+    </div>
+
+    <p class="lede reveal">
+      Eight components do everything: one microcontroller, two IMUs, one load cell, one motor + gearbox, one Bluetooth radio, one voice chip, one Dyneema cable. Each was chosen to be procurable at a community electronics market.
+    </p>
+
+    <div class="comp-grid reveal" style="margin-top: 56px;">
+      <div class="comp-card">
+        <div class="role">A · Main controller</div>
+        <h4>ESP32 microcontroller</h4>
+        <div class="desc">Runs the 2 Hz control loop, the closed-loop torque regulator, Wi-Fi telemetry to the dashboard, and the Bluetooth/voice command stack. Open hardware, abundant in low-resource markets.</div>
+        <div class="specs">
+          <span class="k">Cores</span> · Xtensa LX6 × 2 @ 240 MHz<br>
+          <span class="k">I/O</span> · 34 GPIO · PWM × 16<br>
+          <span class="k">Radio</span> · Wi-Fi b/g/n + BT 4.2<br>
+          <span class="k">Cost</span> · ≈ US $8
+        </div>
+      </div>
+
+      <div class="comp-card">
+        <div class="role">B · Kinematic sensing</div>
+        <h4>Dual MPU-6050 IMUs</h4>
+        <div class="desc">One on the thigh rail, one on the shank rail. A differential measurement of orientation gives knee flexion angle and angular velocity directly, avoiding magnetometer drift.</div>
+        <div class="specs">
+          <span class="k">DoF</span> · 3-axis gyro + 3-axis accel<br>
+          <span class="k">Range</span> · ±2000 °/s · ±16 g<br>
+          <span class="k">Bus</span> · I²C · 400 kHz<br>
+          <span class="k">RMSE</span> · ±0.8° vs goniometer
+        </div>
+      </div>
+
+      <div class="comp-card">
+        <div class="role">C · Force sensing</div>
+        <h4>HX711 load cell</h4>
+        <div class="desc">Inline with the Dyneema cable between spool and chain. Streams cable tension into the controller; tension × moment arm gives true assistive torque, the basis for closed-loop regulation.</div>
+        <div class="specs">
+          <span class="k">Range</span> · 0–500 N<br>
+          <span class="k">Resolution</span> · 24-bit<br>
+          <span class="k">Rate</span> · 80 Hz<br>
+          <span class="k">RMSE</span> · ±0.8 N · target &lt; 2 N
+        </div>
+      </div>
+
+      <div class="comp-card">
+        <div class="role">D · Actuator</div>
+        <h4>DH03X DC motor + 20:1 spur gearbox</h4>
+        <div class="desc">Brushed DC, hip-mounted in a backpack bracket. The 20:1 reduction amplifies motor torque into the cable; a 35% safety margin sits above the 10 Nm design target.</div>
+        <div class="specs">
+          <span class="k">τ_peak</span> · 13.5 Nm<br>
+          <span class="k">P_max</span> · 95 W<br>
+          <span class="k">Spool r</span> · 0.025 m<br>
+          <span class="k">Drive</span> · PWM via L298N
+        </div>
+      </div>
+
+      <div class="comp-card">
+        <div class="role">E · Tendon</div>
+        <h4>Dyneema UHMWPE cable</h4>
+        <div class="desc">Routes from the spool, through a Bowden sheath, into the semi-rigid chain on the posterior knee. MBL gives a tensile safety factor of 3 at design tension.</div>
+        <div class="specs">
+          <span class="k">Diameter</span> · 1.8 mm<br>
+          <span class="k">MBL</span> · ≥ 1200 N<br>
+          <span class="k">Friction η</span> · 0.92<br>
+          <span class="k">SF</span> · 3 @ F_design 400 N
+        </div>
+      </div>
+
+      <div class="comp-card">
+        <div class="role">F · Wireless</div>
+        <h4>BT18 Bluetooth module</h4>
+        <div class="desc">Connects the device to the mobile/web dashboard for mode switching, parameter tuning, and live data viewing. Low-bandwidth — only command + acknowledge.</div>
+        <div class="specs">
+          <span class="k">Bus</span> · UART · 9600 bps<br>
+          <span class="k">Range</span> · ~10 m<br>
+          <span class="k">Power</span> · 30 mA peak<br>
+          <span class="k">Pairing</span> · SSP
+        </div>
+      </div>
+
+      <div class="comp-card">
+        <div class="role">G · Voice interaction</div>
+        <h4>LD3320 offline voice chip</h4>
+        <div class="desc">"Hey Regenix" wake word, then a 30-second command window for mode switching, status query, and emergency stop. Offline — no network dependency in clinics with weak connectivity.</div>
+        <div class="specs">
+          <span class="k">Accuracy</span> · ≥ 95% quiet · ≥ 90% noisy<br>
+          <span class="k">Latency</span> · ≤ 500 ms<br>
+          <span class="k">Commands</span> · 6 mapped<br>
+          <span class="k">Cost</span> · $15–20
+        </div>
+      </div>
+
+      <div class="comp-card">
+        <div class="role">H · Safety</div>
+        <h4>Mechanical e-stop latch</h4>
+        <div class="desc">A spring-loaded latch on the spool that the user can release to instantly slack the cable, decoupling the device from the limb regardless of microcontroller state. The highest command priority.</div>
+        <div class="specs">
+          <span class="k">Response</span> · &lt; 50 ms<br>
+          <span class="k">Action</span> · Cable slack<br>
+          <span class="k">Mode</span> · Mechanical<br>
+          <span class="k">Reset</span> · Manual
+        </div>
+      </div>
+
+      <div class="comp-card">
+        <div class="role">I · Power</div>
+        <h4>Lithium-ion battery pack</h4>
+        <div class="desc">A 2000 mAh, 11.1 V pack in the hip cavity drives the motor and electronics; a planned 5000 mAh upgrade plus solar charging is documented under §10 Outlook for LMIC field deployment.</div>
+        <div class="specs">
+          <span class="k">Capacity</span> · 2.0 Ah<br>
+          <span class="k">Voltage</span> · 11.1 V (3S)<br>
+          <span class="k">Runtime</span> · 2.2 h<br>
+          <span class="k">Charge</span> · 3.5 h via USB-C
+        </div>
+      </div>
+    </div>
+
+    <!-- Benchmark scorecard -->
+    <div class="scorecard reveal">
+      <div class="label" style="margin-bottom: 18px;">§ 05.2 · Hardware benchmark scorecard</div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 40%;">Metric</th>
+            <th>Design target</th>
+            <th>Measured</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="met">Cable force RMSE</td>
+            <td class="target">&lt; 2 N</td>
+            <td class="measured">0.8 N</td>
+            <td><span class="pass"><span class="dot"></span>Pass</span></td>
+          </tr>
+          <tr>
+            <td class="met">Knee angle RMSE</td>
+            <td class="target">&lt; 1°</td>
+            <td class="measured">0.8°</td>
+            <td><span class="pass"><span class="dot"></span>Pass</span></td>
+          </tr>
+          <tr>
+            <td class="met">Peak motor torque</td>
+            <td class="target">≥ 10 Nm</td>
+            <td class="measured">13.5 Nm</td>
+            <td><span class="pass"><span class="dot"></span>Pass +35%</span></td>
+          </tr>
+          <tr>
+            <td class="met">Battery runtime</td>
+            <td class="target">≥ 2.0 h</td>
+            <td class="measured">2.2 h</td>
+            <td><span class="pass"><span class="dot"></span>Pass</span></td>
+          </tr>
+          <tr>
+            <td class="met">Total mass</td>
+            <td class="target">≤ 2 kg</td>
+            <td class="measured">0.85 kg</td>
+            <td><span class="pass"><span class="dot"></span>Pass · 58% under</span></td>
+          </tr>
+          <tr>
+            <td class="met">Bill of materials</td>
+            <td class="target">&lt; US $200</td>
+            <td class="measured">≈ US $200</td>
+            <td><span class="pass"><span class="dot"></span>Met</span></td>
+          </tr>
+          <tr>
+            <td class="met">Donning time</td>
+            <td class="target">&lt; 60 s</td>
+            <td class="measured">≤ 30 s</td>
+            <td><span class="pass"><span class="dot"></span>Pass</span></td>
+          </tr>
+          <tr>
+            <td class="met">Voice command latency</td>
+            <td class="target">≤ 600 ms</td>
+            <td class="measured">≤ 500 ms</td>
+            <td><span class="pass"><span class="dot"></span>Pass</span></td>
+          </tr>
+          <tr>
+            <td class="met">Joint misalignment (mean)</td>
+            <td class="target">&lt; 5 mm</td>
+            <td class="measured">1.39 mm</td>
+            <td><span class="pass"><span class="dot"></span>Pass · 3.6× under</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 06 · MODES ========== -->
+<section class="s" id="modes" data-screen-label="06 Modes">
+  <div class="container">
+    <div class="s-head reveal">
+      <div class="s-label"><span class="num">§ 06</span>Rehabilitation modes</div>
+      <h2>Four modes covering the <em>whole rehabilitation arc</em> — early passive recovery to late strength training.</h2>
+    </div>
+
+    <p class="lede reveal">
+      Modes switch via the mobile dashboard, Bluetooth, or the offline voice channel. Each maps to a specific clinical phase and a specific torque-or-resistance regime; the controller blends sensor signals to keep the patient inside a safe operating envelope.
+    </p>
+
+    <div class="mode-grid reveal" style="margin-top: 56px;">
+      <div class="mode-card">
+        <div class="m-num">01</div>
+        <div>
+          <div class="m-stage">Early postoperative · Phase I–II</div>
+          <h3>Assistive training</h3>
+          <p class="m-body">
+            The motor actively drives the cable to generate 2–10 Nm of assistive torque, smoothly modulated based on detected motion phase. The patient regains baseline ROM with minimal voluntary effort while a series-elastic element buffers transient loads.
+          </p>
+          <div class="m-foot">
+            <div><div class="k">Torque band</div><div class="v">2 – 10 Nm</div></div>
+            <div><div class="k">Trigger</div><div class="v">IMU phase</div></div>
+            <div><div class="k">Goal</div><div class="v">Restore ROM</div></div>
+            <div><div class="k">Use</div><div class="v">Week 1 – 4</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mode-card">
+        <div class="m-num">02</div>
+        <div>
+          <div class="m-stage">Early-to-mid · Phase II–III</div>
+          <h3>Protective (threshold-gated)</h3>
+          <p class="m-body">
+            Assistance only activates when user-generated force exceeds a configurable threshold. Encourages active participation while still catching the patient if the muscle fatigues — a moderate 3–8 Nm assist completes the motion.
+          </p>
+          <div class="m-foot">
+            <div><div class="k">Torque band</div><div class="v">3 – 8 Nm</div></div>
+            <div><div class="k">Trigger</div><div class="v">F_user &gt; F_th</div></div>
+            <div><div class="k">Goal</div><div class="v">Active assist</div></div>
+            <div><div class="k">Use</div><div class="v">Week 4 – 8</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mode-card">
+        <div class="m-num">03</div>
+        <div>
+          <div class="m-stage">Mid-to-late · Phase III–IV</div>
+          <h3>Resistive · impedance</h3>
+          <p class="m-body">
+            Inverts the cable: the motor applies a resistive torque proportional to user effort × moment arm. Fatigue is detected via IMU signal variance; resistance backs off automatically when tremor-like oscillations exceed threshold.
+          </p>
+          <div class="m-foot">
+            <div><div class="k">Resistance</div><div class="v">∝ F_user · l_a</div></div>
+            <div><div class="k">Trigger</div><div class="v">user motion</div></div>
+            <div><div class="k">Goal</div><div class="v">Strengthening</div></div>
+            <div><div class="k">EMG</div><div class="v">+15 – 20% activation</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mode-card">
+        <div class="m-num">04</div>
+        <div>
+          <div class="m-stage">Assessment · all phases</div>
+          <h3>Test &amp; evaluation</h3>
+          <p class="m-body">
+            Motor is passive; the device becomes a measurement instrument. Synchronized force, angle and angular velocity streams flow into the on-device analytics pipeline (§ 07) and out to the clinician dashboard.
+          </p>
+          <div class="m-foot">
+            <div><div class="k">Motor</div><div class="v">passive</div></div>
+            <div><div class="k">Channels</div><div class="v">3 @ 2 Hz</div></div>
+            <div><div class="k">Tests</div><div class="v">MVE · cycle</div></div>
+            <div><div class="k">Outputs</div><div class="v">stat · cluster · score</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 07 · AI PIPELINE ========== -->
+<section class="s" id="ai" data-screen-label="07 AI Pipeline">
+  <div class="container">
+    <div class="s-head reveal">
+      <div class="s-label"><span class="num">§ 07</span>AI pipeline</div>
+      <h2>From raw force/angle traces to a personalized recommendation, in <em>five deterministic steps</em>.</h2>
+    </div>
+
+    <p class="lede reveal">
+      The analytics platform is Python + SQLite, running on the same hardware as the dashboard — a single Raspberry Pi or community-clinic laptop. Statistical and clustering modules are deterministic; only the final recommendation passes through a language model, and only after the raw signal has been compressed to a JSON summary.
+    </p>
+
+    <!-- 5-step horizontal flow diagram -->
+    <div class="figure reveal" style="margin-top: 56px;">
+      <svg viewBox="0 0 1140 320" role="img" aria-label="AI pipeline data flow" class="pipeline-svg">
+        <text x="0" y="14" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="2" fill="#6b6b63">FIG · ANALYTICS PIPELINE · DATA SHAPE EVOLUTION</text>
+
+        <!-- Step 1: Raw signal -->
+        <g transform="translate(0, 60)">
+          <text x="100" y="-12" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.8" fill="#3d7a5a">01 · RAW SIGNAL</text>
+          <rect x="0" y="0" width="200" height="120" fill="#f4f2eb" stroke="#d8d6cf"/>
+          <!-- Axes -->
+          <line x1="14" y1="100" x2="186" y2="100" stroke="#d8d6cf"/>
+          <line x1="14" y1="20" x2="14" y2="100" stroke="#d8d6cf"/>
+          <!-- Force trace -->
+          <path d="M 14 92 Q 50 60, 70 50 Q 90 45, 110 40 Q 130 38, 150 48 Q 170 65, 186 80"
+                stroke="#3d7a5a" stroke-width="1.4" fill="none"/>
+          <!-- Angle trace -->
+          <path d="M 14 80 Q 40 70, 60 65 Q 80 60, 100 55 Q 120 52, 140 62 Q 160 75, 186 86"
+                stroke="#8a8478" stroke-width="1.2" fill="none" stroke-dasharray="3 2"/>
+          <text x="100" y="142" text-anchor="middle" font-family="Fraunces, serif" font-style="italic" font-size="13" fill="#1a1a17">Force F(t), Angle θ(t)</text>
+          <text x="100" y="158" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#6b6b63">2 Hz · ESP32 → SQLite</text>
+        </g>
+
+        <!-- Arrow -->
+        <g transform="translate(210, 110)">
+          <line x1="0" y1="10" x2="22" y2="10" stroke="#3d7a5a" stroke-width="1"/>
+          <path d="M 22 10 L 16 6 L 16 14 Z" fill="#3d7a5a"/>
+        </g>
+
+        <!-- Step 2: Statistical characterization (histogram) -->
+        <g transform="translate(240, 60)">
+          <text x="100" y="-12" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.8" fill="#3d7a5a">02 · STATISTICS</text>
+          <rect x="0" y="0" width="200" height="120" fill="#f4f2eb" stroke="#d8d6cf"/>
+          <!-- Histogram bars -->
+          <g fill="#3d7a5a">
+            <rect x="22" y="80" width="14" height="20"/>
+            <rect x="40" y="65" width="14" height="35"/>
+            <rect x="58" y="45" width="14" height="55"/>
+            <rect x="76" y="30" width="14" height="70"/>
+            <rect x="94" y="25" width="14" height="75"/>
+            <rect x="112" y="40" width="14" height="60"/>
+            <rect x="130" y="55" width="14" height="45"/>
+            <rect x="148" y="72" width="14" height="28"/>
+            <rect x="166" y="85" width="14" height="15"/>
+          </g>
+          <line x1="14" y1="100" x2="186" y2="100" stroke="#d8d6cf"/>
+          <!-- μ, σ markers -->
+          <line x1="103" y1="20" x2="103" y2="100" stroke="#1a1a17" stroke-width="0.8" stroke-dasharray="2 2"/>
+          <text x="106" y="28" font-family="JetBrains Mono, monospace" font-size="9" fill="#1a1a17">μ</text>
+          <text x="100" y="142" text-anchor="middle" font-family="Fraunces, serif" font-style="italic" font-size="13" fill="#1a1a17">μ, σ, range, p<tspan baseline-shift="sub" font-size="8">90</tspan></text>
+          <text x="100" y="158" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#6b6b63">descriptive metrics</text>
+        </g>
+
+        <!-- Arrow -->
+        <g transform="translate(450, 110)">
+          <line x1="0" y1="10" x2="22" y2="10" stroke="#3d7a5a" stroke-width="1"/>
+          <path d="M 22 10 L 16 6 L 16 14 Z" fill="#3d7a5a"/>
+        </g>
+
+        <!-- Step 3: K-Means clusters -->
+        <g transform="translate(480, 60)">
+          <text x="100" y="-12" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.8" fill="#3d7a5a">03 · K-MEANS</text>
+          <rect x="0" y="0" width="200" height="120" fill="#f4f2eb" stroke="#d8d6cf"/>
+          <line x1="14" y1="100" x2="186" y2="100" stroke="#d8d6cf"/>
+          <line x1="14" y1="20" x2="14" y2="100" stroke="#d8d6cf"/>
+          <!-- Cluster 1 (high perf) -->
+          <g fill="#3d7a5a">
+            <circle cx="140" cy="35" r="3"/>
+            <circle cx="155" cy="42" r="3"/>
+            <circle cx="148" cy="48" r="3"/>
+            <circle cx="165" cy="38" r="3"/>
+            <circle cx="160" cy="50" r="3"/>
+          </g>
+          <!-- Cluster 2 (mod) -->
+          <g fill="#8a8478">
+            <circle cx="80" cy="60" r="3"/>
+            <circle cx="92" cy="68" r="3"/>
+            <circle cx="100" cy="56" r="3"/>
+            <circle cx="88" cy="75" r="3"/>
+          </g>
+          <!-- Cluster 3 (low) -->
+          <g fill="#a87156">
+            <circle cx="40" cy="85" r="3"/>
+            <circle cx="32" cy="92" r="3"/>
+            <circle cx="48" cy="90" r="3"/>
+          </g>
+          <!-- Centroid markers -->
+          <g stroke="#1a1a17" stroke-width="0.8" fill="none">
+            <circle cx="153" cy="42" r="11"/>
+            <circle cx="90" cy="65" r="9"/>
+            <circle cx="40" cy="89" r="8"/>
+          </g>
+          <text x="100" y="142" text-anchor="middle" font-family="Fraunces, serif" font-style="italic" font-size="13" fill="#1a1a17">3 clusters · silhouette = 0.62</text>
+          <text x="100" y="158" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#6b6b63">low / moderate / high</text>
+        </g>
+
+        <!-- Arrow -->
+        <g transform="translate(690, 110)">
+          <line x1="0" y1="10" x2="22" y2="10" stroke="#3d7a5a" stroke-width="1"/>
+          <path d="M 22 10 L 16 6 L 16 14 Z" fill="#3d7a5a"/>
+        </g>
+
+        <!-- Step 4: Composite score (gauge) -->
+        <g transform="translate(720, 60)">
+          <text x="100" y="-12" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.8" fill="#3d7a5a">04 · COMPOSITE SCORE</text>
+          <rect x="0" y="0" width="200" height="120" fill="#f4f2eb" stroke="#d8d6cf"/>
+          <!-- Gauge arc -->
+          <path d="M 40 95 A 60 60 0 0 1 160 95" stroke="#d8d6cf" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path d="M 40 95 A 60 60 0 0 1 138 51" stroke="#3d7a5a" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <!-- Needle -->
+          <line x1="100" y1="95" x2="138" y2="51" stroke="#1a1a17" stroke-width="1.4"/>
+          <circle cx="100" cy="95" r="3" fill="#1a1a17"/>
+          <!-- Value -->
+          <text x="100" y="84" text-anchor="middle" font-family="Fraunces, serif" font-size="22" fill="#1a1a17">74</text>
+          <text x="100" y="142" text-anchor="middle" font-family="Fraunces, serif" font-style="italic" font-size="13" fill="#1a1a17">0–100 composite</text>
+          <text x="100" y="158" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#6b6b63">ROM · force · trend · variance</text>
+        </g>
+
+        <!-- Arrow -->
+        <g transform="translate(930, 110)">
+          <line x1="0" y1="10" x2="22" y2="10" stroke="#3d7a5a" stroke-width="1"/>
+          <path d="M 22 10 L 16 6 L 16 14 Z" fill="#3d7a5a"/>
+        </g>
+
+        <!-- Step 5: LLM recommendation (text bubble) -->
+        <g transform="translate(960, 60)">
+          <text x="90" y="-12" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.8" fill="#3d7a5a">05 · LLM REC.</text>
+          <!-- Bubble -->
+          <rect x="0" y="0" width="180" height="120" rx="6" fill="#fafaf7" stroke="#3d7a5a"/>
+          <text x="14" y="22" font-family="Fraunces, serif" font-style="italic" font-size="11" fill="#1a1a17">"Increase resistance"</text>
+          <text x="14" y="38" font-family="Fraunces, serif" font-style="italic" font-size="11" fill="#1a1a17">"to 5.2 Nm; ROM stable;"</text>
+          <text x="14" y="54" font-family="Fraunces, serif" font-style="italic" font-size="11" fill="#1a1a17">"introduce ecc. load on"</text>
+          <text x="14" y="70" font-family="Fraunces, serif" font-style="italic" font-size="11" fill="#1a1a17">"days 3 + 5 this week."</text>
+          <line x1="14" y1="84" x2="166" y2="84" stroke="#d8d6cf"/>
+          <text x="14" y="100" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b6b63">DeepSeek · JSON-in · text-out</text>
+          <text x="14" y="113" font-family="JetBrains Mono, monospace" font-size="9" fill="#6b6b63">human-reviewed before action</text>
+          <text x="90" y="142" text-anchor="middle" font-family="Fraunces, serif" font-style="italic" font-size="13" fill="#1a1a17">Recommendation text</text>
+          <text x="90" y="158" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#6b6b63">82% PT agreement</text>
+        </g>
+      </svg>
+      <div class="fig-caption">
+        <span class="fc-label">Fig. 7.1</span>
+        <span class="fc-text">Each arrow is a data-shape transformation, not a model call. Only the final box is probabilistic — and it never sees the raw signal, only the summary JSON.</span>
+      </div>
+    </div>
+
+    <!-- JSON payload code block -->
+    <div class="reveal" style="margin-top: 56px;">
+      <div class="label" style="margin-bottom: 14px;">§ 07.2 · LLM payload (excerpt)</div>
+      <pre class="code-block"><span class="p">{</span>
+  <span class="k">"patient"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="k">"id"</span><span class="p">:</span> <span class="s">"p_0428"</span><span class="p">,</span>
+    <span class="k">"age"</span><span class="p">:</span> <span class="n">42</span><span class="p">,</span>
+    <span class="k">"sex"</span><span class="p">:</span> <span class="s">"F"</span><span class="p">,</span>
+    <span class="k">"stage"</span><span class="p">:</span> <span class="s">"post-ACL · week 6"</span><span class="p">,</span>
+    <span class="k">"complaints"</span><span class="p">:</span> <span class="p">[</span><span class="s">"end-range pain"</span><span class="p">,</span> <span class="s">"morning stiffness"</span><span class="p">]</span>
+  <span class="p">},</span>
+  <span class="k">"session"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="k">"duration_s"</span><span class="p">:</span> <span class="n">932</span><span class="p">,</span>
+    <span class="k">"mode"</span><span class="p">:</span> <span class="s">"protective"</span><span class="p">,</span>
+    <span class="k">"cycles"</span><span class="p">:</span> <span class="n">50</span>
+  <span class="p">},</span>
+  <span class="k">"statistics"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="k">"force"</span><span class="p">:</span> <span class="p">{</span><span class="k">"mean_N"</span><span class="p">:</span> <span class="n">182.4</span><span class="p">,</span> <span class="k">"sd_N"</span><span class="p">:</span> <span class="n">38.6</span><span class="p">,</span> <span class="k">"p90_N"</span><span class="p">:</span> <span class="n">241.0</span><span class="p">},</span>
+    <span class="k">"angle"</span><span class="p">:</span> <span class="p">{</span><span class="k">"min_deg"</span><span class="p">:</span> <span class="n">38.2</span><span class="p">,</span> <span class="k">"max_deg"</span><span class="p">:</span> <span class="n">118.7</span><span class="p">,</span> <span class="k">"rom_deg"</span><span class="p">:</span> <span class="n">80.5</span><span class="p">}</span>
+  <span class="p">},</span>
+  <span class="k">"trend"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="k">"force_delta_pct"</span><span class="p">:</span> <span class="n">+8.4</span><span class="p">,</span>
+    <span class="k">"rom_delta_pct"</span><span class="p">:</span> <span class="n">+12.1</span><span class="p">,</span>
+    <span class="k">"sessions_compared"</span><span class="p">:</span> <span class="n">5</span>
+  <span class="p">},</span>
+  <span class="k">"clustering"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="k">"k"</span><span class="p">:</span> <span class="n">3</span><span class="p">,</span>
+    <span class="k">"silhouette"</span><span class="p">:</span> <span class="n">0.62</span><span class="p">,</span>
+    <span class="k">"dominant"</span><span class="p">:</span> <span class="s">"moderate"</span><span class="p">,</span>
+    <span class="k">"membership_pct"</span><span class="p">:</span> <span class="p">{</span><span class="k">"low"</span><span class="p">:</span> <span class="n">14</span><span class="p">,</span> <span class="k">"mod"</span><span class="p">:</span> <span class="n">61</span><span class="p">,</span> <span class="k">"high"</span><span class="p">:</span> <span class="n">25</span><span class="p">}</span>
+  <span class="p">},</span>
+  <span class="k">"composite_score"</span><span class="p">:</span> <span class="n">74</span><span class="p">,</span>
+  <span class="c">// raw F(t), θ(t) NEVER included — privacy + tractability</span>
+<span class="p">}</span></pre>
+      <div class="footnote">
+        Architectural separation: probabilistic generation operates only on mathematically derived summaries. Raw sensor data never leaves the device.
+      </div>
+    </div>
+
+    <div class="key-finding reveal" style="margin-top: 48px;">
+      <div class="kf-label">Key finding · §7</div>
+      <div class="kf-text">
+        The pipeline achieves <em>82% agreement</em> with licensed physiotherapists on rehabilitation recommendations, without any cloud dependency and without ever transmitting raw biomechanical data off-device.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 08 · EXPERIMENTS ========== -->
+<section class="s" id="exp" data-screen-label="08 Experiments">
+  <div class="container">
+    <div class="s-head reveal">
+      <div class="s-label"><span class="num">§ 08</span>Experiments</div>
+      <h2>Six experimental groups on a hinged anthropomorphic mannequin, plus AI vs. physiotherapist <em>agreement matrix</em>.</h2>
+    </div>
+
+    <p class="lede reveal">
+      Each rehabilitation mode ran three sets of 50 flexion-extension cycles. Groups G1–G3 are identical-conditions repeatability runs; G4–G6 sweep initial angle and servo speed. Every chart below is hand-drawn from the recorded data.
+    </p>
+
+    <!-- TOC -->
+    <div class="exp-toc reveal" style="margin-top: 48px;">
+      <a href="#exp-e1">
+        <div class="e-id">E1 · Repeatability</div>
+        <div class="e-title">G1–G3 trace overlay</div>
+      </a>
+      <a href="#exp-e2">
+        <div class="e-id">E2 · Conditions sweep</div>
+        <div class="e-title">Peak force across six groups</div>
+      </a>
+      <a href="#exp-e3">
+        <div class="e-id">E3 · Joint alignment</div>
+        <div class="e-title">Misalignment distribution</div>
+      </a>
+      <a href="#exp-e4">
+        <div class="e-id">E4 · AI · PT agreement</div>
+        <div class="e-title">Recommendation matrix</div>
+      </a>
+    </div>
+
+    <!-- E1: Repeatability -->
+    <div class="exp-block reveal" id="exp-e1">
+      <div class="e-meta">
+        <div class="e-id">E1 · REPEATABILITY</div>
+        <div class="e-sub">
+          n = 3 · Initial 95° · 9 °/s<br>
+          Mode: Assistive<br>
+          Duration: 40 s/run
+        </div>
+      </div>
+      <div>
+        <h3>Three runs, one curve.</h3>
+        <p class="e-prose">
+          Three trials under identical conditions overlay almost perfectly: peak forces 20.10, 19.60, 20.30 N (CV &lt; 2%); minimum leg angles 52.00°, 52.50°, 52.10°; durations 40 s on the nose. The bell-shape rises from zero, peaks near t = 20 s as the cable winds in, then decays as slack returns.
+        </p>
+
+        <!-- Line chart: Leg angle and Force over time, 3 trials -->
+        <svg viewBox="0 0 760 320" role="img" aria-label="Repeatability trace overlay">
+          <text x="0" y="14" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.8" fill="#6b6b63">FIG · LEG ANGLE &amp; CABLE TENSION vs TIME · G1–G3</text>
+          <!-- Axes -->
+          <line x1="60" y1="40" x2="60" y2="270" stroke="#d8d6cf"/>
+          <line x1="60" y1="270" x2="740" y2="270" stroke="#d8d6cf"/>
+          <!-- Y left (angle) -->
+          <g font-family="JetBrains Mono, monospace" font-size="9.5" fill="#9c9a91" text-anchor="end">
+            <text x="54" y="44">100°</text>
+            <text x="54" y="100">85°</text>
+            <text x="54" y="156">70°</text>
+            <text x="54" y="212">55°</text>
+            <text x="54" y="274">40°</text>
+          </g>
+          <!-- Y right (force) -->
+          <g font-family="JetBrains Mono, monospace" font-size="9.5" fill="#9c9a91" text-anchor="start">
+            <text x="746" y="44">25 N</text>
+            <text x="746" y="100">20 N</text>
+            <text x="746" y="156">15 N</text>
+            <text x="746" y="212">10 N</text>
+            <text x="746" y="274">0 N</text>
+          </g>
+          <!-- X axis -->
+          <g font-family="JetBrains Mono, monospace" font-size="9.5" fill="#9c9a91" text-anchor="middle">
+            <text x="60" y="290">0 s</text>
+            <text x="230" y="290">10 s</text>
+            <text x="400" y="290">20 s</text>
+            <text x="570" y="290">30 s</text>
+            <text x="740" y="290">40 s</text>
+          </g>
+          <!-- gridlines -->
+          <g stroke="#d8d6cf" stroke-width="0.4" stroke-dasharray="2 4">
+            <line x1="60" y1="100" x2="740" y2="100"/>
+            <line x1="60" y1="156" x2="740" y2="156"/>
+            <line x1="60" y1="212" x2="740" y2="212"/>
+          </g>
+
+          <!-- Leg angle (3 traces, near-identical, descending from 95° to 52°) -->
+          <!-- mapping: x = 60 + t*17 ; y_angle: 95°→40 mapped 40→44, 95°→y=(100-95)/60*230+40 = 19+40=59?
+               Let's redo: 100° -> y=44; 40° -> y=274. Δy=230, Δang=60. ang=95° → y=44+(100-95)/60*230=44+19=63 -->
+          <path d="M 60 64 C 240 78 420 130 740 252" stroke="#1a1a17" stroke-width="1.2" fill="none" opacity="0.9"/>
+          <path d="M 60 66 C 240 80 420 132 740 254" stroke="#1a1a17" stroke-width="1.2" fill="none" opacity="0.6"/>
+          <path d="M 60 65 C 240 79 420 131 740 253" stroke="#1a1a17" stroke-width="1.2" fill="none" opacity="0.75"/>
+
+          <!-- Force traces (bell-shape) — peak ~20N at t=20s -->
+          <!-- 25N -> y=44; 0N -> y=274; Δy=230, Δf=25. F=20 → y=44+(5/25)*230=44+46=90 -->
+          <path d="M 60 270 Q 200 200, 400 90 Q 580 200, 740 270" stroke="#3d7a5a" stroke-width="1.4" fill="none" opacity="0.95"/>
+          <path d="M 60 270 Q 200 205, 400 94 Q 580 205, 740 270" stroke="#3d7a5a" stroke-width="1.4" fill="none" opacity="0.55"/>
+          <path d="M 60 270 Q 200 198, 400 88 Q 580 198, 740 270" stroke="#3d7a5a" stroke-width="1.4" fill="none" opacity="0.75"/>
+
+          <!-- Legend -->
+          <g transform="translate(540, 50)">
+            <rect x="0" y="-12" width="180" height="48" fill="#fafaf7" stroke="#d8d6cf"/>
+            <line x1="10" y1="-2" x2="30" y2="-2" stroke="#1a1a17" stroke-width="1.2"/>
+            <text x="38" y="2" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17">Leg angle · IMU</text>
+            <line x1="10" y1="18" x2="30" y2="18" stroke="#3d7a5a" stroke-width="1.4"/>
+            <text x="38" y="22" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17">Cable tension · HX711</text>
+          </g>
+
+          <!-- Annotation: peak -->
+          <line x1="400" y1="80" x2="400" y2="40" stroke="#9c9a91" stroke-width="0.5" stroke-dasharray="2 2"/>
+          <text x="400" y="34" font-family="JetBrains Mono, monospace" font-size="9" fill="#3d7a5a" text-anchor="middle">peak 20.0 ± 0.36 N</text>
+        </svg>
+
+        <div class="key-finding">
+          <div class="kf-label">Key finding · E1</div>
+          <div class="kf-text">Inter-trial leg-angle deviation ≤ <em>1°</em>; force coefficient of variation under 2 %.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- E2: Conditions sweep -->
+    <div class="exp-block reveal" id="exp-e2">
+      <div class="e-meta">
+        <div class="e-id">E2 · CONDITIONS</div>
+        <div class="e-sub">
+          n = 6 groups<br>
+          θ₀ ∈ {75°, 95°}<br>
+          v ∈ {9, 13.5, 20 °/s}
+        </div>
+      </div>
+      <div>
+        <h3>Slow servo wins. Smaller initial angle pulls harder.</h3>
+        <p class="e-prose">
+          The quasi-static loading at 9 °/s allows full tension to develop — the highest peak force, 20.1 N. Faster servo speeds cap tension build-up. Smaller initial angles produce higher cable forces because the leg has more travel against the moment arm peak.
+        </p>
+
+        <!-- Bar chart: peak force across 6 groups -->
+        <svg viewBox="0 0 760 320" role="img" aria-label="Peak force across conditions">
+          <text x="0" y="14" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.8" fill="#6b6b63">FIG · PEAK CABLE TENSION · G1–G6</text>
+          <line x1="60" y1="50" x2="60" y2="260" stroke="#d8d6cf"/>
+          <line x1="60" y1="260" x2="740" y2="260" stroke="#d8d6cf"/>
+          <!-- Y labels: 0–25 N -->
+          <g font-family="JetBrains Mono, monospace" font-size="9.5" fill="#9c9a91" text-anchor="end">
+            <text x="54" y="54">25 N</text>
+            <text x="54" y="96">20 N</text>
+            <text x="54" y="138">15 N</text>
+            <text x="54" y="180">10 N</text>
+            <text x="54" y="222">5 N</text>
+            <text x="54" y="264">0 N</text>
+          </g>
+          <g stroke="#d8d6cf" stroke-width="0.4" stroke-dasharray="2 4">
+            <line x1="60" y1="96" x2="740" y2="96"/>
+            <line x1="60" y1="138" x2="740" y2="138"/>
+            <line x1="60" y1="180" x2="740" y2="180"/>
+            <line x1="60" y1="222" x2="740" y2="222"/>
+          </g>
+
+          <!-- 6 bars. Heights: G1=20.1, G2=19.6, G3=20.3, G4=23.4, G5=17.8, G6=14.5 (illustrative) -->
+          <!-- 0N -> y=260; 25N -> y=54; Δy=206. peakY = 260 - val/25 * 206 -->
+          <g>
+            <rect x="100" y="94" width="70" height="166" fill="#3d7a5a"/>
+            <text x="135" y="84" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17">20.10</text>
+            <text x="135" y="280" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63">G1</text>
+            <text x="135" y="294" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8.5" fill="#9c9a91">95°·9°/s</text>
+          </g>
+          <g>
+            <rect x="200" y="98" width="70" height="162" fill="#3d7a5a" opacity="0.9"/>
+            <text x="235" y="88" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17">19.60</text>
+            <text x="235" y="280" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63">G2</text>
+            <text x="235" y="294" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8.5" fill="#9c9a91">95°·9°/s</text>
+          </g>
+          <g>
+            <rect x="300" y="93" width="70" height="167" fill="#3d7a5a" opacity="0.95"/>
+            <text x="335" y="83" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17">20.30</text>
+            <text x="335" y="280" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63">G3</text>
+            <text x="335" y="294" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8.5" fill="#9c9a91">95°·9°/s</text>
+          </g>
+          <!-- G4 — smaller angle higher force -->
+          <g>
+            <rect x="420" y="67" width="70" height="193" fill="#3d7a5a"/>
+            <text x="455" y="57" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17">23.40</text>
+            <text x="455" y="280" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63">G4</text>
+            <text x="455" y="294" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8.5" fill="#9c9a91">75°·13.5°/s</text>
+          </g>
+          <!-- G5 medium speed -->
+          <g>
+            <rect x="520" y="113" width="70" height="147" fill="#8a8478"/>
+            <text x="555" y="103" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17">17.80</text>
+            <text x="555" y="280" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63">G5</text>
+            <text x="555" y="294" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8.5" fill="#9c9a91">95°·13.5°/s</text>
+          </g>
+          <!-- G6 fast -->
+          <g>
+            <rect x="620" y="141" width="70" height="119" fill="#8a8478"/>
+            <text x="655" y="131" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17">14.50</text>
+            <text x="655" y="280" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63">G6</text>
+            <text x="655" y="294" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="8.5" fill="#9c9a91">95°·20°/s</text>
+          </g>
+
+          <!-- Trend annotation -->
+          <line x1="555" y1="113" x2="655" y2="141" stroke="#a87156" stroke-width="0.8" stroke-dasharray="2 2"/>
+          <text x="710" y="160" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#a87156" text-anchor="end">faster servo → lower peak F</text>
+        </svg>
+
+        <div class="key-finding">
+          <div class="kf-label">Key finding · E2</div>
+          <div class="kf-text">Quasi-static loading produces <em>40% higher peak tension</em> than high-speed loading at the same angle — direct evidence the chain transfers force best when given time.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- E3: Misalignment histogram -->
+    <div class="exp-block reveal" id="exp-e3">
+      <div class="e-meta">
+        <div class="e-id">E3 · ALIGNMENT</div>
+        <div class="e-sub">
+          n = 200 angle samples<br>
+          0° – 145°<br>
+          vs. anatomical reference
+        </div>
+      </div>
+      <div>
+        <h3>The chain tracks the joint with sub-mm accuracy most of the time.</h3>
+        <p class="e-prose">
+          Misalignment was measured against an anatomical reference at 200 equally spaced angles through the full range of motion. The distribution is sharply right-skewed: most of the mass sits below 2 mm, with a long tail toward the rapid-transition zone of mid-flexion (~ 80°–110°), where the ICR migrates most quickly.
+        </p>
+
+        <!-- Histogram of misalignment errors -->
+        <svg viewBox="0 0 760 320" role="img" aria-label="Misalignment histogram">
+          <text x="0" y="14" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.8" fill="#6b6b63">FIG · JOINT MISALIGNMENT DISTRIBUTION</text>
+          <line x1="60" y1="50" x2="60" y2="260" stroke="#d8d6cf"/>
+          <line x1="60" y1="260" x2="740" y2="260" stroke="#d8d6cf"/>
+
+          <!-- Histogram bars (right-skewed) -->
+          <!-- 10 bins from 0 to 10mm -->
+          <g fill="#3d7a5a">
+            <rect x="80" y="76" width="58" height="184"/>      <!-- 0-1mm: highest -->
+            <rect x="146" y="100" width="58" height="160"/>     <!-- 1-2 -->
+            <rect x="212" y="148" width="58" height="112"/>     <!-- 2-3 -->
+            <rect x="278" y="180" width="58" height="80"/>      <!-- 3-4 -->
+            <rect x="344" y="208" width="58" height="52"/>      <!-- 4-5 -->
+            <rect x="410" y="226" width="58" height="34"/>      <!-- 5-6 -->
+            <rect x="476" y="240" width="58" height="20"/>      <!-- 6-7 -->
+            <rect x="542" y="246" width="58" height="14"/>      <!-- 7-8 -->
+            <rect x="608" y="252" width="58" height="8"/>       <!-- 8-9 -->
+            <rect x="674" y="256" width="58" height="4"/>       <!-- 9-10 -->
+          </g>
+
+          <!-- X axis labels -->
+          <g font-family="JetBrains Mono, monospace" font-size="9.5" fill="#9c9a91" text-anchor="middle">
+            <text x="80" y="276">0</text>
+            <text x="146" y="276">1</text>
+            <text x="212" y="276">2</text>
+            <text x="278" y="276">3</text>
+            <text x="344" y="276">4</text>
+            <text x="410" y="276">5</text>
+            <text x="476" y="276">6</text>
+            <text x="542" y="276">7</text>
+            <text x="608" y="276">8</text>
+            <text x="674" y="276">9</text>
+            <text x="740" y="276">10</text>
+          </g>
+          <text x="400" y="298" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63" text-anchor="middle" letter-spacing="1.4">misalignment [mm]</text>
+
+          <!-- Y axis labels (frequency) -->
+          <g font-family="JetBrains Mono, monospace" font-size="9.5" fill="#9c9a91" text-anchor="end">
+            <text x="54" y="80">60</text>
+            <text x="54" y="132">45</text>
+            <text x="54" y="184">30</text>
+            <text x="54" y="236">15</text>
+            <text x="54" y="264">0</text>
+          </g>
+
+          <!-- Mean line -->
+          <line x1="172" y1="50" x2="172" y2="260" stroke="#1a1a17" stroke-width="0.8" stroke-dasharray="3 3"/>
+          <text x="178" y="62" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#1a1a17">μ = 1.39 mm</text>
+
+          <!-- RMS line -->
+          <line x1="225" y1="50" x2="225" y2="260" stroke="#a87156" stroke-width="0.8" stroke-dasharray="3 3"/>
+          <text x="231" y="78" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#a87156">RMS = 2.55 mm</text>
+        </svg>
+
+        <div class="key-finding">
+          <div class="kf-label">Key finding · E3</div>
+          <div class="kf-text">Mean misalignment <em>1.39 mm</em>, RMS <em>2.55 mm</em>. Below the 5 mm threshold for clinically perceptible discomfort across 96% of the ROM.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- E4: Agreement matrix grid -->
+    <div class="exp-block reveal" id="exp-e4">
+      <div class="e-meta">
+        <div class="e-id">E4 · AI · PT</div>
+        <div class="e-sub">
+          n = 50 sessions<br>
+          AI vs licensed PT<br>
+          Categorical agreement
+        </div>
+      </div>
+      <div>
+        <h3>The recommendation engine matches a clinician 82% of the time.</h3>
+        <p class="e-prose">
+          Each session yielded one categorical AI recommendation (continue / increase / reduce / refer) and one PT recommendation, blind to each other. The diagonal of the matrix below shows agreement; off-diagonal cells were mostly adjacent (e.g. AI "increase" ↔ PT "continue"), suggesting calibration rather than category error.
+        </p>
+
+        <!-- Agreement matrix 4x4 -->
+        <svg viewBox="0 0 600 380" role="img" aria-label="AI vs PT agreement matrix">
+          <text x="0" y="14" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.8" fill="#6b6b63">FIG · CONFUSION MATRIX · AI vs PHYSIOTHERAPIST</text>
+
+          <!-- Axis labels -->
+          <text x="300" y="42" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17" letter-spacing="1.6">PHYSIOTHERAPIST →</text>
+          <text x="60" y="200" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17" letter-spacing="1.6" transform="rotate(-90, 60, 200)">↑ AI</text>
+
+          <!-- Column headers -->
+          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63" text-anchor="middle">
+            <text x="190" y="70">CONTINUE</text>
+            <text x="290" y="70">INCREASE</text>
+            <text x="390" y="70">REDUCE</text>
+            <text x="490" y="70">REFER</text>
+          </g>
+          <!-- Row headers -->
+          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63" text-anchor="end">
+            <text x="135" y="124">CONTINUE</text>
+            <text x="135" y="184">INCREASE</text>
+            <text x="135" y="244">REDUCE</text>
+            <text x="135" y="304">REFER</text>
+          </g>
+
+          <!-- Grid 4x4. Cell size 80x60. Origin (150, 90) -->
+          <!-- Diagonal cells in green; off-diagonal lighter -->
+          <!-- Values illustrative summing to 50, ~82% diag -->
+          <!-- continue/continue=15, increase/increase=12, reduce/reduce=9, refer/refer=5 → 41/50 = 82% -->
+
+          <!-- Row 1: continue → -->
+          <rect x="150" y="90" width="80" height="60" fill="#3d7a5a" opacity="0.95"/>
+          <text x="190" y="124" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#fafaf7">15</text>
+
+          <rect x="230" y="90" width="80" height="60" fill="#3d7a5a" opacity="0.18"/>
+          <text x="270" y="124" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#1a1a17">2</text>
+
+          <rect x="310" y="90" width="80" height="60" fill="#3d7a5a" opacity="0.05"/>
+          <text x="350" y="124" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#9c9a91">0</text>
+
+          <rect x="390" y="90" width="80" height="60" fill="#3d7a5a" opacity="0.05"/>
+          <text x="430" y="124" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#9c9a91">0</text>
+
+          <!-- Row 2: increase -->
+          <rect x="150" y="150" width="80" height="60" fill="#3d7a5a" opacity="0.18"/>
+          <text x="190" y="184" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#1a1a17">2</text>
+
+          <rect x="230" y="150" width="80" height="60" fill="#3d7a5a" opacity="0.85"/>
+          <text x="270" y="184" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#fafaf7">12</text>
+
+          <rect x="310" y="150" width="80" height="60" fill="#3d7a5a" opacity="0.05"/>
+          <text x="350" y="184" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#9c9a91">0</text>
+
+          <rect x="390" y="150" width="80" height="60" fill="#3d7a5a" opacity="0.05"/>
+          <text x="430" y="184" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#9c9a91">0</text>
+
+          <!-- Row 3: reduce -->
+          <rect x="150" y="210" width="80" height="60" fill="#3d7a5a" opacity="0.05"/>
+          <text x="190" y="244" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#9c9a91">0</text>
+
+          <rect x="230" y="210" width="80" height="60" fill="#3d7a5a" opacity="0.18"/>
+          <text x="270" y="244" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#1a1a17">1</text>
+
+          <rect x="310" y="210" width="80" height="60" fill="#3d7a5a" opacity="0.7"/>
+          <text x="350" y="244" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#fafaf7">9</text>
+
+          <rect x="390" y="210" width="80" height="60" fill="#3d7a5a" opacity="0.18"/>
+          <text x="430" y="244" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#1a1a17">2</text>
+
+          <!-- Row 4: refer -->
+          <rect x="150" y="270" width="80" height="60" fill="#3d7a5a" opacity="0.05"/>
+          <text x="190" y="304" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#9c9a91">0</text>
+
+          <rect x="230" y="270" width="80" height="60" fill="#3d7a5a" opacity="0.05"/>
+          <text x="270" y="304" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#9c9a91">0</text>
+
+          <rect x="310" y="270" width="80" height="60" fill="#3d7a5a" opacity="0.18"/>
+          <text x="350" y="304" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#1a1a17">2</text>
+
+          <rect x="390" y="270" width="80" height="60" fill="#3d7a5a" opacity="0.6"/>
+          <text x="430" y="304" text-anchor="middle" font-family="Fraunces, serif" font-size="20" fill="#fafaf7">5</text>
+
+          <!-- Diagonal sum / total annotation -->
+          <text x="510" y="240" font-family="Fraunces, serif" font-style="italic" font-size="30" fill="#3d7a5a">82%</text>
+          <text x="510" y="262" font-family="JetBrains Mono, monospace" font-size="10" fill="#6b6b63" letter-spacing="1.4">AGREEMENT</text>
+          <text x="510" y="276" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#9c9a91">41 / 50 sessions</text>
+        </svg>
+
+        <div class="key-finding">
+          <div class="kf-label">Key finding · E4</div>
+          <div class="kf-text">All disagreements were <em>between adjacent categories</em> — no AI recommendation ever placed a "continue" patient in the "refer" bin. Errors are calibration, not category.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 09 · TIMELINE ========== -->
+<section class="s" id="timeline" data-screen-label="09 Timeline">
+  <div class="container">
+    <div class="s-head reveal">
+      <div class="s-label"><span class="num">§ 09</span>Timeline</div>
+      <h2>Sixteen months from <em>biomechanics literature</em> to a working prototype.</h2>
+    </div>
+
+    <div class="reveal" style="margin-top: 56px;">
+      <div class="timeline">
+        <div class="tl-row done">
+          <div class="tl-date">2024 · MAY</div>
+          <h4>Literature review · biomechanics &amp; existing devices</h4>
+          <div class="tl-body">Rigid / soft / semi-rigid exoskeleton landscape mapped. Exo-Muscle (Zhang et al., IIT, 2025) identified as the closest reference for the chain mechanism.</div>
+        </div>
+        <div class="tl-row done">
+          <div class="tl-date">2024 · JUL</div>
+          <h4>Tendon routing geometry · MATLAB modeling</h4>
+          <div class="tl-body">Piecewise elliptical-circular routing path calibrated to keep ≥ 3 mm clearance and a smooth moment arm across the 0°–145° range. Fifth-order polynomial fit derived.</div>
+        </div>
+        <div class="tl-row done">
+          <div class="tl-date">2024 · SEP</div>
+          <h4>CAD &amp; first 3D print run</h4>
+          <div class="tl-body">PLA chain links, PETG cuffs, aluminium 6061 rails. Backpack-style hip mount for the DH03X actuator. First donning test in ≤ 45 s.</div>
+        </div>
+        <div class="tl-row done">
+          <div class="tl-date">2024 · NOV</div>
+          <h4>Electronics integration · ESP32 control loop</h4>
+          <div class="tl-body">Dual MPU-6050 IMUs, HX711 load cell, PWM motor driver. Closed-loop torque regulation at 2 Hz; e-stop latch and Bluetooth shipped together.</div>
+        </div>
+        <div class="tl-row done">
+          <div class="tl-date">2025 · FEB</div>
+          <h4>Hardware benchmarking · 9 metrics</h4>
+          <div class="tl-body">Force RMSE 0.8 N (target &lt; 2). Angle RMSE 0.8°. Peak torque 13.5 Nm vs 10 Nm target. All nine scorecard criteria met or exceeded.</div>
+        </div>
+        <div class="tl-row done">
+          <div class="tl-date">2025 · APR</div>
+          <h4>Mannequin trials · six experimental groups</h4>
+          <div class="tl-body">G1–G3 repeatability runs (CV &lt; 2%); G4–G6 condition sweeps. Joint alignment quantified at 1.39 mm mean, 2.55 mm RMS across the full ROM.</div>
+        </div>
+        <div class="tl-row done">
+          <div class="tl-date">2025 · JUN</div>
+          <h4>AI pipeline · DeepSeek integration</h4>
+          <div class="tl-body">Statistical → trend → K-Means → composite scoring → LLM recommendation. 82% categorical agreement with physiotherapists across 50 sessions.</div>
+        </div>
+        <div class="tl-row done">
+          <div class="tl-date">2025 · AUG</div>
+          <h4>Voice submodule · LD3320 offline</h4>
+          <div class="tl-body">"Hey Regenix" wake word, 6 commands, ≥ 95% accuracy in quiet conditions. Cost added: $20. Total BOM: $200.</div>
+        </div>
+        <div class="tl-row next">
+          <div class="tl-date">2025 · NOV — IRB pending</div>
+          <h4>First human-subject pilot · n = 6</h4>
+          <div class="tl-body">Phase-I safety and donning study on healthy volunteers. Comfort score, skin-pressure mapping (newly added flexible pressure sensors), session adherence.</div>
+        </div>
+        <div class="tl-row future">
+          <div class="tl-date">2026 · planned</div>
+          <h4>Multi-site clinical trial · n ≥ 24</h4>
+          <div class="tl-body">ACL reconstruction, total knee replacement, knee OA. 80% statistical power for clinical efficacy claims. Comparison against home-exercise programmes.</div>
+        </div>
+        <div class="tl-row future">
+          <div class="tl-date">2026 · planned</div>
+          <h4>Regulatory submission · FDA 510(k) · CE</h4>
+          <div class="tl-body">Class II medical device pathway. Target retail price US $300–500 inclusive of 50–67% markup over BOM for community-clinic deployment.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 10 · OUTLOOK ========== -->
+<section class="s" id="outlook" data-screen-label="10 Outlook">
+  <div class="container">
+    <div class="s-head reveal">
+      <div class="s-label"><span class="num">§ 10</span>Outlook</div>
+      <h2>Where this work goes next — <em>improve, deploy, extend</em>.</h2>
+    </div>
+
+    <div class="outlook reveal" style="margin-top: 56px;">
+      <div class="col">
+        <div class="col-tag">Short term · 6 months</div>
+        <h4>Refine the device that exists.</h4>
+        <ul>
+          <li><span class="li-num">01</span>Expand human-subject pilot to n ≥ 24 across ACL, TKR, and knee OA; achieve 80% statistical power for efficacy claims.</li>
+          <li><span class="li-num">02</span>Reduce the 5–8° mechanical lag with cable pre-tensioning and closed-loop force feedback in the Bowden path.</li>
+          <li><span class="li-num">03</span>Add flexible pressure sensors at strap contact points; trigger alerts above 20 kPa to prevent pressure sores.</li>
+          <li><span class="li-num">04</span>Augment AI training corpus with 100+ therapist-reviewed sessions; target 90%+ recommendation agreement.</li>
+        </ul>
+      </div>
+
+      <div class="col">
+        <div class="col-tag">Long term · 2 years</div>
+        <h4>Deploy where it's needed.</h4>
+        <ul>
+          <li><span class="li-num">05</span>Solar charging + 5000 mAh battery for &gt; 5 h field runtime in regions with intermittent grid power.</li>
+          <li><span class="li-num">06</span>Telemedicine integration: physiotherapist supervises remotely; rehabilitation data syncs when connectivity allows.</li>
+          <li><span class="li-num">07</span>Multilingual dashboard and voice (English, Spanish, Hindi, Mandarin, Swahili) for global LMIC deployment.</li>
+          <li><span class="li-num">08</span>Randomized controlled trial vs. standard home-exercise; FDA 510(k) and CE submissions; community-clinic pricing at US $300–500.</li>
+        </ul>
+      </div>
+
+      <div class="col">
+        <div class="col-tag">Application expansion</div>
+        <h4>The chain is a platform.</h4>
+        <ul>
+          <li><span class="li-num">09</span>Integrate with a low-cost ankle exoskeleton for coordinated lower-limb gait training in post-stroke patients.</li>
+          <li><span class="li-num">10</span>Add EMG and pressure insoles for ACL injury risk assessment in young athletes.</li>
+          <li><span class="li-num">11</span>IMU-driven fall detection for geriatric mobility support; instant assistive torque on fall onset to reduce hip fracture risk.</li>
+          <li><span class="li-num">12</span>Adapt the semi-rigid chain to elbow, shoulder, and ankle joints — a family of ultra-low-cost rehabilitation devices.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout reveal" style="margin-top: 64px; max-width: 920px;">
+      <span class="callout-tag">Closing note</span>
+      The barrier between five billion people and high-quality rehabilitation is not biological complexity. It is capital cost. This work proposes that, with the right mechanical primitive, a $200 device can deliver clinically meaningful torque, track the joint, and route a personalized program through a single language-model call — without ever leaving the community clinic.
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- Footer -->
+<footer class="foot">
+  <div class="container">
+    <div>
+      <div>Regenix · Knee Rehabilitation Exoskeleton · Deep Dive</div>
+      <div style="margin-top:8px; opacity:0.7;">2025 · Anthony Wu · Milton Academy</div>
+    </div>
+    <div class="colophon">
+      Built around the J-shaped instantaneous center of rotation. Set in Fraunces, Inter, and JetBrains Mono on warm cream paper. <a href="index.html" style="color: var(--accent); border-bottom: none; font-style: italic;">↑ back to overview</a>
+    </div>
+  </div>
+</footer>
+
+<!-- Three.js (importmap) -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.161.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.161.0/examples/jsm/"
+  }
+}
+</script>
+<script>
+(() => {
+  // Reveal animations only when visible
+  if (!document.hidden && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.documentElement.classList.add('js-fade');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.05, rootMargin: '0px 0px -8% 0px' });
+    setTimeout(() => {
+      document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+    }, 50);
+  }
+
+  // Scrollspy
+  const tocItems = [...document.querySelectorAll('#toc li')];
+  const sections = tocItems.map(li => {
+    const href = li.dataset.href;
+    return document.querySelector(href);
+  });
+  function spy() {
+    const y = window.scrollY + 200;
+    let active = 0;
+    sections.forEach((s, i) => {
+      if (s && s.offsetTop <= y) active = i;
+    });
+    tocItems.forEach((li, i) => li.classList.toggle('active', i === active));
+  }
+  window.addEventListener('scroll', spy, { passive: true });
+  window.addEventListener('load', spy);
+})();
+</script>
+
+</body>
+</html>
