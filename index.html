@@ -408,9 +408,22 @@
     color: var(--ink-muted);
     max-width: 560px;
   }
+  /* Full-width figure pair spanning both story columns */
+  .story-figs {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+    margin-top: -32px;   /* cancel half of story's 56px row-gap */
+    border-top: 1px solid var(--rule);
+    padding-top: 24px;
+  }
+  .story-figs figure { margin: 0; }
   @media (max-width: 900px) {
     .story { grid-template-columns: 1fr; gap: 16px; padding: 40px 0; }
     .story-num { font-size: 80px; }
+    .story-figs { grid-template-columns: 1fr; margin-top: 0; }
   }
 
   /* DIAGRAMS ---------------------------------------------- */
@@ -792,6 +805,237 @@
   .ladder-row .bar { fill: var(--ink); }
   .ladder-row .bar.us { fill: var(--accent); }
 
+  /* HOW IT WORKS ------------------------------------------ */
+  /* Mode card grid — unified bordered panel */
+  .hiw-modes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    margin: 32px 0 40px;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .mode-card {
+    padding: 22px 22px 20px;
+    border-right: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  .mode-card:last-child { border-right: none; }
+  /* Top accent bar — same green, always on */
+  .mode-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+  }
+  .mode-stage {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 10px;
+  }
+  .mode-name {
+    font-family: var(--serif);
+    font-size: clamp(22px, 2vw, 28px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .mode-tagline {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 14px;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .mode-desc {
+    font-family: var(--sans);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--ink-muted);
+    flex: 1;
+  }
+  /* Device ↔ Patient authority bar */
+  .mode-authority {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+  }
+  .mode-auth-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 6px;
+  }
+  .mode-auth-track {
+    height: 3px;
+    background: var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .mode-auth-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+  @media (max-width: 900px) {
+    .hiw-modes { grid-template-columns: 1fr; }
+    .mode-card { border-right: none; border-bottom: 1px solid var(--rule); }
+    .mode-card:last-child { border-bottom: none; }
+  }
+
+  /* AI pipeline — compact step boxes with arrows */
+  .hiw-pipeline {
+    display: grid;
+    grid-template-columns: 1fr 24px 1fr 24px 1fr 24px 1fr;
+    align-items: center;
+    gap: 0;
+    margin-top: 32px;
+  }
+  .hiw-pipe-step {
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 14px 16px 16px;
+  }
+  .hiw-pipe-step.pipe-last {
+    border-color: var(--ink-muted);
+  }
+  .hiw-pipe-arrow {
+    text-align: center;
+    font-family: var(--serif);
+    font-size: 15px;
+    color: var(--ink-muted);
+  }
+  .hiw-pipe-num {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 7px;
+  }
+  .hiw-pipe-name {
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--ink);
+    margin-bottom: 5px;
+  }
+  .hiw-pipe-desc {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--ink-muted);
+  }
+  @media (max-width: 900px) {
+    .hiw-pipeline {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .hiw-pipe-arrow { transform: rotate(90deg); font-size: 13px; }
+  }
+
+  /* RECOGNITION ------------------------------------------- */
+  .recognition {
+    padding: 88px 0 96px;
+    border-top: 1px solid var(--rule);
+  }
+  .rec-heading {
+    font-family: var(--serif);
+    font-weight: 350;
+    font-size: clamp(40px, 4.4vw, 64px);
+    line-height: 1.0;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 16px;
+  }
+  .rec-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(16px, 1.4vw, 20px);
+    line-height: 1.5;
+    color: var(--ink-muted);
+    max-width: 580px;
+    margin-bottom: 56px;
+    letter-spacing: -0.005em;
+  }
+  .rec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .rec-item {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    padding: 36px 40px;
+    background: rgba(255,255,255,0.55);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+  }
+  .rec-logo {
+    flex-shrink: 0;
+    width: 164px;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .rec-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .rec-rank {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 10px;
+  }
+  .rec-competition {
+    font-family: var(--serif);
+    font-size: clamp(20px, 1.8vw, 26px);
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    margin-bottom: 14px;
+    font-weight: 350;
+  }
+  .rec-org {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    line-height: 1.5;
+  }
+  @media (max-width: 900px) {
+    .rec-grid { grid-template-columns: 1fr; gap: 16px; }
+    .rec-item { padding: 28px; gap: 24px; }
+    .rec-logo { width: 120px; height: 90px; }
+  }
+
   /* CTA STRIP --------------------------------------------- */
   .cta-strip {
     margin: 88px 0 0;
@@ -834,7 +1078,6 @@
     <a href="index.html" class="wordmark plain">
       <span class="wm-mark"></span><span class="wm-em">Regenix</span><span style="color:var(--ink-muted); font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; margin-left:8px;">Knee Exoskeleton</span>
     </a>
-    <div class="nav-meta">Wu · Milton Academy · 2025</div>
     <div class="nav-links">
       <a href="index.html" class="active">Overview</a>
       <a href="details.html" class="cta">Deep dive</a>
@@ -848,7 +1091,7 @@
 <section class="hero">
   <div class="container">
 
-    <div class="eyebrow reveal">§ 00 — Research Project · Knee Rehabilitation Exoskeleton</div>
+    <div class="eyebrow reveal">00 — Research Project · Knee Rehabilitation Exoskeleton</div>
 
     <div class="hero-head" style="margin-top: 28px;">
       <h1 class="reveal">
@@ -955,7 +1198,7 @@
   <div class="story reveal" data-screen-label="Story 01 Problem">
     <div>
       <div class="story-num">01</div>
-      <div class="story-id">§ 01 — Problem</div>
+      <div class="story-id">01 — Problem</div>
     </div>
     <div class="story-body">
       <p>
@@ -967,75 +1210,97 @@
       <p>
         At the same time, the two cheap alternatives — rigid post-op braces and soft compression sleeves — fail biomechanically: the rigid hinge fights the knee's migrating center of rotation, and the soft sleeve cannot deliver therapeutic torque.
       </p>
+    </div>
 
-      <!-- ICR MISALIGNMENT FIGURE -->
-      <div class="figure">
+    <!-- FULL-WIDTH FIGURE PAIR -->
+    <div class="story-figs">
+
+      <!-- LEFT: ICR misalignment photo -->
+      <figure>
         <img src="assets/icr-misalignment.png" alt="Rigid exoskeleton joint axes misaligned from the human hip and knee; inset shows the knee's J-shaped instantaneous center of rotation migrating from 0° to 90° flexion." style="width: 100%; height: auto; display: block; border: 1px solid var(--rule); border-radius: 4px; background: var(--bg);">
-      </div>
-      <div class="fig-caption">
-        <span class="fc-label">Fig. 1.1</span>
-        <span class="fc-text">Rigid exoskeletons assume the knee rotates about a single fixed axis. It doesn't — the instantaneous center of rotation (ICR) traces a J-shaped curve through flexion, so every fixed pin generates shear at the cuff and contact forces at the joint.</span>
-      </div>
+        <figcaption class="fig-caption" style="margin-top:14px;">
+          <span class="fc-label">Fig. 1.1</span>
+          <span class="fc-text">Rigid exoskeletons assume the knee rotates about a single fixed axis. It doesn't — the instantaneous center of rotation traces a J-shaped curve through flexion, so every fixed pin generates shear at the cuff.</span>
+        </figcaption>
+      </figure>
 
-      <!-- COST LADDER SVG -->
-      <div class="figure">
-        <svg class="ladder" viewBox="0 0 720 220" role="img" aria-label="Cost ladder comparing exoskeletons">
-          <!-- title -->
-          <text x="0" y="14" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="2" fill="#6b6b63">FIG · COST LADDER · USD</text>
+      <!-- RIGHT: Vertical cost ladder -->
+      <figure>
+        <svg viewBox="0 0 470 455" role="img" aria-label="Vertical cost ladder comparing exoskeletons" style="width:100%; height:auto; display:block;">
+          <!-- Title -->
+          <text x="72" y="16" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="2" fill="#6b6b63">FIG · COST LADDER · USD</text>
 
-          <!-- horizontal axis -->
-          <line x1="160" y1="200" x2="700" y2="200" stroke="#d8d6cf" stroke-width="1"/>
-          <!-- ticks -->
-          <g font-family="JetBrains Mono, monospace" font-size="9.5" fill="#9c9a91" letter-spacing="1">
-            <line x1="160" y1="200" x2="160" y2="205" stroke="#d8d6cf"/>
-            <text x="160" y="215" text-anchor="start">$0</text>
-            <line x1="296" y1="200" x2="296" y2="205" stroke="#d8d6cf"/>
-            <text x="296" y="215" text-anchor="middle">$25k</text>
-            <line x1="432" y1="200" x2="432" y2="205" stroke="#d8d6cf"/>
-            <text x="432" y="215" text-anchor="middle">$50k</text>
-            <line x1="568" y1="200" x2="568" y2="205" stroke="#d8d6cf"/>
-            <text x="568" y="215" text-anchor="middle">$75k</text>
-            <line x1="700" y1="200" x2="700" y2="205" stroke="#d8d6cf"/>
-            <text x="700" y="215" text-anchor="end">$100k</text>
+          <!-- Y-axis -->
+          <line x1="72" y1="26" x2="72" y2="330" stroke="#d8d6cf" stroke-width="1"/>
+          <!-- Baseline -->
+          <line x1="72" y1="330" x2="348" y2="330" stroke="#d8d6cf" stroke-width="1"/>
+
+          <!-- Horizontal grid rules (stop at x=348, leaving room for annotation) -->
+          <line x1="72" y1="255" x2="348" y2="255" stroke="#d8d6cf" stroke-width="0.5" stroke-dasharray="3 4"/>
+          <line x1="72" y1="180" x2="348" y2="180" stroke="#d8d6cf" stroke-width="0.5" stroke-dasharray="3 4"/>
+          <line x1="72" y1="105" x2="348" y2="105" stroke="#d8d6cf" stroke-width="0.5" stroke-dasharray="3 4"/>
+          <line x1="72" y1="30"  x2="348" y2="30"  stroke="#d8d6cf" stroke-width="0.5" stroke-dasharray="3 4"/>
+
+          <!-- Y-axis tick labels -->
+          <g font-family="JetBrains Mono, monospace" font-size="9.5" fill="#9c9a91" text-anchor="end">
+            <text x="66" y="334">$0</text>
+            <text x="66" y="259">$25k</text>
+            <text x="66" y="184">$50k</text>
+            <text x="66" y="109">$75k</text>
+            <text x="66" y="34">$100k</text>
           </g>
 
-          <!-- Bars; scale: $1 = 0.0054 px -->
-          <!-- Row 1: ReWalk - $90,000 -->
-          <g class="ladder-row">
-            <text x="155" y="40" text-anchor="end" font-family="Fraunces, serif" font-size="14" fill="#1a1a17">ReWalk Personal 6.0</text>
-            <text x="155" y="54" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="1" fill="#9c9a91">FULL LOWER LIMB</text>
-            <rect x="160" y="32" width="486" height="22" fill="#1a1a17"/>
-            <text x="654" y="48" font-family="JetBrains Mono, monospace" font-size="11" fill="#1a1a17">$90,000</text>
+          <!-- Bar 1: ReWalk $90,000 — height=270, top y=60 -->
+          <rect x="90" y="60" width="48" height="270" fill="#1a1a17"/>
+          <text x="114" y="55" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#1a1a17" text-anchor="middle">$90,000</text>
+
+          <!-- Bar 2: Ekso GT $70,000 — height=210, top y=120 -->
+          <rect x="158" y="120" width="48" height="210" fill="#3a3a32"/>
+          <text x="182" y="115" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#1a1a17" text-anchor="middle">$70,000</text>
+
+          <!-- Bar 3: Roam Ascend $7,000 — height=21, top y=309 -->
+          <rect x="226" y="309" width="48" height="21" fill="#6e6a5e"/>
+          <text x="250" y="303" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#1a1a17" text-anchor="middle">$7,000</text>
+
+          <!-- Bar 4: Regenix $200 — essentially zero; show 3 px sliver + pointer -->
+          <rect x="294" y="327" width="48" height="3" fill="#3d7a5a"/>
+          <!-- Pointer line up to label -->
+          <line x1="318" y1="327" x2="318" y2="298" stroke="#3d7a5a" stroke-width="0.8"/>
+          <text x="318" y="293" font-family="JetBrains Mono, monospace" font-size="10" font-weight="500" fill="#3d7a5a" text-anchor="middle">$200</text>
+          <!-- Short dash leading into the annotation -->
+          <line x1="342" y1="290" x2="358" y2="290" stroke="#9c9a91" stroke-width="0.6"/>
+          <!-- Annotation block to the right of the Regenix column -->
+          <text x="362" y="290" font-family="Fraunces, serif" font-size="11" font-style="italic" fill="#6b6b63">— under 3 %</text>
+          <text x="362" y="304" font-family="Fraunces, serif" font-size="11" font-style="italic" fill="#6b6b63">of the cheapest</text>
+          <text x="362" y="318" font-family="Fraunces, serif" font-size="11" font-style="italic" fill="#6b6b63">powered</text>
+          <text x="362" y="332" font-family="Fraunces, serif" font-size="11" font-style="italic" fill="#6b6b63">competitor.</text>
+
+          <!-- Product name labels — anchored well below baseline (y=400) so
+               even the longest text, rotating up-right at -40°, never
+               crosses back above the chart baseline at y=330 -->
+          <g transform="translate(114,402) rotate(-40)">
+            <text font-family="Fraunces, serif" font-size="12" fill="#1a1a17">ReWalk 6.0</text>
+            <text dy="14" font-family="JetBrains Mono, monospace" font-size="8.5" letter-spacing="1" fill="#9c9a91">FULL LOWER LIMB</text>
           </g>
-          <!-- Row 2: Ekso GT - $70,000 -->
-          <g class="ladder-row">
-            <text x="155" y="82" text-anchor="end" font-family="Fraunces, serif" font-size="14" fill="#1a1a17">Ekso GT</text>
-            <text x="155" y="96" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="1" fill="#9c9a91">CLINICAL GAIT TRAINER</text>
-            <rect x="160" y="74" width="378" height="22" fill="#3a3a32"/>
-            <text x="546" y="90" font-family="JetBrains Mono, monospace" font-size="11" fill="#1a1a17">$70,000</text>
+          <g transform="translate(182,402) rotate(-40)">
+            <text font-family="Fraunces, serif" font-size="12" fill="#1a1a17">Ekso GT</text>
+            <text dy="14" font-family="JetBrains Mono, monospace" font-size="8.5" letter-spacing="1" fill="#9c9a91">GAIT TRAINER</text>
           </g>
-          <!-- Row 3: Roam Ascend - $7,000 -->
-          <g class="ladder-row">
-            <text x="155" y="124" text-anchor="end" font-family="Fraunces, serif" font-size="14" fill="#1a1a17">Roam Ascend</text>
-            <text x="155" y="138" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="1" fill="#9c9a91">CONSUMER KNEE EXO</text>
-            <rect x="160" y="116" width="38" height="22" fill="#6e6a5e"/>
-            <text x="206" y="132" font-family="JetBrains Mono, monospace" font-size="11" fill="#1a1a17">$7,000</text>
+          <g transform="translate(250,402) rotate(-40)">
+            <text font-family="Fraunces, serif" font-size="12" fill="#1a1a17">Roam Ascend</text>
+            <text dy="14" font-family="JetBrains Mono, monospace" font-size="8.5" letter-spacing="1" fill="#9c9a91">CONSUMER KNEE EXO</text>
           </g>
-          <!-- Row 4: Regenix - $200 -->
-          <g class="ladder-row">
-            <text x="155" y="166" text-anchor="end" font-family="Fraunces, serif" font-size="14" font-style="italic" fill="#3d7a5a">Regenix <tspan font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" font-style="normal">(THIS WORK)</tspan></text>
-            <text x="155" y="180" text-anchor="end" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="1" fill="#3d7a5a">SEMI-RIGID CHAIN</text>
-            <rect x="160" y="158" width="2.4" height="22" fill="#3d7a5a"/>
-            <text x="170" y="174" font-family="JetBrains Mono, monospace" font-size="11" font-weight="500" fill="#3d7a5a">$200</text>
-            <!-- Annotation -->
-            <text x="170" y="194" font-family="Fraunces, serif" font-size="12" font-style="italic" fill="#6b6b63">— under 3 % of the cheapest powered competitor.</text>
+          <g transform="translate(318,402) rotate(-40)">
+            <text font-family="Fraunces, serif" font-size="12" font-style="italic" fill="#3d7a5a">Regenix</text>
+            <text dy="14" font-family="JetBrains Mono, monospace" font-size="8.5" letter-spacing="1" fill="#3d7a5a">THIS WORK</text>
           </g>
         </svg>
-      </div>
-      <div class="fig-caption">
-        <span class="fc-label">Fig. 1.2</span>
-        <span class="fc-text">Per-unit retail price. Regenix's $200 bar is so small it nearly disappears on this axis — that is the point.</span>
-      </div>
+        <figcaption class="fig-caption" style="margin-top:14px;">
+          <span class="fc-label">Fig. 1.2</span>
+          <span class="fc-text">Per-unit retail price. Regenix's $200 bar is so small it nearly disappears on this axis — that is the point.</span>
+        </figcaption>
+      </figure>
+
     </div>
   </div>
 
@@ -1043,7 +1308,7 @@
   <div class="story reveal" data-screen-label="Story 02 Device">
     <div>
       <div class="story-num">02</div>
-      <div class="story-id">§ 02 — Device</div>
+      <div class="story-id">02 — Device</div>
 
       <!-- BILL OF MATERIALS — fills the left gutter -->
       <aside class="bom-panel">
@@ -1081,16 +1346,6 @@
       <p>
         A single hip-mounted brushed-DC actuator does all the work; the limb itself carries only aluminium rails, PETG cuffs, and a chain that field-repairs with 3D-printed spares.
       </p>
-
-      <div class="story-pills">
-        <span class="pill"><span class="pill-num">$200</span> BOM total</span>
-        <span class="pill"><span class="pill-num">0.85</span> kg total mass</span>
-        <span class="pill"><span class="pill-num">13.5</span> Nm peak torque</span>
-        <span class="pill"><span class="pill-num">4</span> rehab modes</span>
-        <span class="pill"><span class="pill-num">0–145°</span> range of motion</span>
-        <span class="pill"><span class="pill-num">2.2 h</span> runtime</span>
-        <span class="pill"><span class="pill-num">≤ 30 s</span> donning time</span>
-      </div>
 
       <!-- SOLUTION FIGURES (side-by-side) -->
       <div class="fig-pair">
@@ -1282,11 +1537,97 @@
     </div>
   </div>
 
-  <!-- 03 RESULT -->
-  <div class="story reveal" data-screen-label="Story 03 Result">
+  <!-- 03 HOW IT WORKS -->
+  <div class="story reveal" data-screen-label="Story 03 How It Works">
     <div>
       <div class="story-num">03</div>
-      <div class="story-id">§ 03 — Result</div>
+      <div class="story-id">03 — How it works</div>
+    </div>
+    <div class="story-body">
+      <p>
+        The user puts on the device and powers it on — the twelve-link semi-rigid chain passively conforms to their individual knee geometry. From there, they activate one of three rehabilitation modes using the on-board voice control: <em>"Hey Regenix, start Assistive training."</em>
+      </p>
+      <p>
+        Regenix mirrors the three stages of rehabilitation. Each mode trades the device's authority for the patient's own, in proportion to how much strength they have recovered.
+      </p>
+
+      <!-- Three rehabilitation mode cards -->
+      <div class="hiw-modes">
+        <div class="mode-card">
+          <div class="mode-stage">Stage 01</div>
+          <div class="mode-name">Assistive</div>
+          <div class="mode-tagline">Motor leads.</div>
+          <div class="mode-desc">The motor helps the patient complete movements when strength is still limited — full-arc flexion and extension on cue.</div>
+          <div class="mode-authority">
+            <div class="mode-auth-labels"><span>Device</span><span>Patient</span></div>
+            <div class="mode-auth-track"><div class="mode-auth-fill" style="width: 70%"></div></div>
+          </div>
+        </div>
+        <div class="mode-card">
+          <div class="mode-stage">Stage 02</div>
+          <div class="mode-name">Protective</div>
+          <div class="mode-tagline">Motor follows.</div>
+          <div class="mode-desc">Assistance only activates after the user generates some force themselves — encouraging early muscle engagement without overload.</div>
+          <div class="mode-authority">
+            <div class="mode-auth-labels"><span>Device</span><span>Patient</span></div>
+            <div class="mode-auth-track"><div class="mode-auth-fill" style="width: 45%"></div></div>
+          </div>
+        </div>
+        <div class="mode-card">
+          <div class="mode-stage">Stage 03</div>
+          <div class="mode-name">Resistive</div>
+          <div class="mode-tagline">Motor opposes.</div>
+          <div class="mode-desc">The device adds controlled resistance to rebuild strength as recovery progresses — closed-loop torque against the patient's own effort.</div>
+          <div class="mode-authority">
+            <div class="mode-auth-labels"><span>Device</span><span>Patient</span></div>
+            <div class="mode-auth-track"><div class="mode-auth-fill" style="width: 22%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <p>
+        After each session, the training data feeds into an on-device AI pipeline that analyzes it and generates a full rehabilitation report — flagging the user's current training stage, projected recovery timeline, and quantitative metrics that doctors can act on.
+      </p>
+
+      <!-- Closed-loop pipeline -->
+      <div class="hiw-pipeline">
+        <div class="hiw-pipe-step">
+          <div class="hiw-pipe-num">01</div>
+          <div class="hiw-pipe-name">Voice command</div>
+          <div class="hiw-pipe-desc"><em>"Hey Regenix, start Assistive."</em></div>
+        </div>
+        <div class="hiw-pipe-arrow">→</div>
+        <div class="hiw-pipe-step">
+          <div class="hiw-pipe-num">02</div>
+          <div class="hiw-pipe-name">Guided session</div>
+          <div class="hiw-pipe-desc">Mode-specific torque profile, 8–15 min.</div>
+        </div>
+        <div class="hiw-pipe-arrow">→</div>
+        <div class="hiw-pipe-step">
+          <div class="hiw-pipe-num">03</div>
+          <div class="hiw-pipe-name">On-device analysis</div>
+          <div class="hiw-pipe-desc">Range, torque, symmetry, adherence.</div>
+        </div>
+        <div class="hiw-pipe-arrow">→</div>
+        <div class="hiw-pipe-step pipe-last">
+          <div class="hiw-pipe-num">04</div>
+          <div class="hiw-pipe-name">Clinician report</div>
+          <div class="hiw-pipe-desc">Stage, timeline, recommended next session.</div>
+        </div>
+      </div>
+
+      <div class="fig-caption" style="margin-top: 14px;">
+        <span class="fc-label">Fig. 3.1</span>
+        <span class="fc-text">Closed-loop session pipeline. The device runs the same four steps every session — the report from step 4 informs the mode for step 1 of the next.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 04 RESULT -->
+  <div class="story reveal" data-screen-label="Story 04 Result">
+    <div>
+      <div class="story-num">04</div>
+      <div class="story-id">04 — Result</div>
     </div>
     <div class="story-body">
       <p>
@@ -1343,15 +1684,40 @@
 
 </section>
 
+<!-- ====================== RECOGNITION ====================== -->
+<section class="recognition container reveal" data-screen-label="Recognition">
+  <h2 class="rec-heading">Recognised by.</h2>
+  <p class="rec-sub">Independent juries of investors, entrepreneurs, and research scientists have selected the work for advancement at the national and regional level.</p>
+  <div class="rec-grid">
+    <div class="rec-item">
+      <div class="rec-logo">
+        <img src="assets/logo-diamond-challenge.png" alt="Diamond Challenge logo">
+      </div>
+      <div>
+        <div class="rec-rank">Top 5% Globally</div>
+        <div class="rec-competition">Diamond Challenge Entrepreneurship Competition</div>
+        <div class="rec-org">University of Delaware · Horn Entrepreneurship</div>
+      </div>
+    </div>
+    <div class="rec-item">
+      <div class="rec-logo">
+        <img src="assets/logo-msef.png" alt="Massachusetts Science and Engineering Fair logo">
+      </div>
+      <div>
+        <div class="rec-rank">2nd Place — Region V</div>
+        <div class="rec-competition">Massachusetts Science &amp; Engineering Fair</div>
+        <div class="rec-org">MSEF · Regional Finals</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ====================== FOOTER ====================== -->
 <footer class="foot">
   <div class="container">
     <div>
       <div>Regenix · Knee Rehabilitation Exoskeleton</div>
       <div style="margin-top:8px; opacity:0.7;">2025 · Anthony Wu · Milton Academy</div>
-    </div>
-    <div class="colophon">
-      Built around the J-shaped instantaneous center of rotation. Set in Fraunces, Inter, and JetBrains Mono on warm cream paper.
     </div>
   </div>
 </footer>
