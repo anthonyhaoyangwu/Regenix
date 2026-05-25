@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regenix — Design Process</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,350;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="assets/main.css">
+
+<style>
+  main { padding-top: 56px; }
+
+  /* HERO -------------------------------------------------- */
+  .dp-hero {
+    padding: 96px 0 80px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .dp-hero h1 { margin-top: 24px; max-width: 860px; }
+  .dp-hero h1 em { font-style: italic; color: var(--accent); }
+  .dp-hero .hero-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(18px, 1.6vw, 22px);
+    line-height: 1.5;
+    color: var(--ink-muted);
+    max-width: 580px;
+    margin-top: 28px;
+    letter-spacing: -0.005em;
+  }
+
+  /* PHASE SECTIONS ---------------------------------------- */
+  .phases { padding: 24px 0 96px; }
+
+  .phase {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 56px;
+    padding: 64px 0;
+    border-top: 1px solid var(--rule);
+    align-items: start;
+  }
+  .phase:last-child { border-bottom: 1px solid var(--rule); }
+
+  .phase-num {
+    font-family: var(--serif);
+    font-style: italic;
+    font-weight: 300;
+    font-size: clamp(80px, 9vw, 120px);
+    line-height: 0.85;
+    color: var(--accent);
+    letter-spacing: -0.04em;
+  }
+  .phase-id {
+    margin-top: 14px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .phase-body {}
+  .phase-title {
+    font-family: var(--serif);
+    font-size: clamp(22px, 2vw, 30px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    font-weight: 350;
+    margin-bottom: 20px;
+  }
+  .phase-title em { color: var(--accent); font-style: italic; }
+
+  .phase-prose {
+    font-family: var(--serif);
+    font-size: clamp(17px, 1.5vw, 20px);
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 350;
+    letter-spacing: -0.005em;
+    max-width: 640px;
+  }
+  .phase-prose p + p { margin-top: 18px; }
+  .phase-prose em { color: var(--accent); }
+
+  /* Key decisions list */
+  .decisions {
+    margin-top: 28px;
+    border-top: 1px solid var(--rule);
+    padding-top: 24px;
+  }
+  .decisions-label {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.20em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 14px;
+  }
+  .decisions ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .decisions ul li {
+    font-family: var(--sans);
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--ink-muted);
+    padding-left: 18px;
+    position: relative;
+  }
+  .decisions ul li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 12px;
+  }
+
+  /* Notebook image grid */
+  .notebook-grid {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .notebook-grid.single { grid-template-columns: 1fr; }
+  .notebook-grid.wide { grid-template-columns: 1fr; max-width: 560px; }
+
+  .notebook-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border-radius: 4px;
+    overflow: hidden;
+    background: var(--bg-warm);
+  }
+  .notebook-frame img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .notebook-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border: 1.5px dashed var(--rule-strong);
+    border-radius: 4px;
+  }
+  .notebook-placeholder-icon {
+    font-family: var(--mono);
+    font-size: 22px;
+    color: var(--rule-strong);
+  }
+  .notebook-placeholder-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    text-align: center;
+    padding: 0 20px;
+    line-height: 1.6;
+  }
+  .notebook-caption {
+    margin-top: 8px;
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    display: flex;
+    gap: 12px;
+  }
+  .notebook-caption .nc-label { color: var(--accent); }
+
+  @media (max-width: 900px) {
+    .phase { grid-template-columns: 1fr; gap: 20px; padding: 48px 0; }
+    .phase-num { font-size: 80px; }
+    .notebook-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Fixed nav -->
+<nav class="nav" data-screen-label="Top Nav">
+  <div class="nav-inner">
+    <a href="index.html" class="wordmark plain">
+      <span class="wm-mark"></span><span class="wm-em">Regenix</span><span style="color:var(--ink-muted); font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; margin-left:8px;">Knee Exoskeleton</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Overview</a>
+      <a href="details.html">Deep dive</a>
+      <a href="design-process.html" class="active">Design Process</a>
+      <a href="mission.html">The Mission</a>
+    </div>
+  </div>
+</nav>
+
+<main data-screen-label="Design Process">
+
+<!-- ====================== HERO ====================== -->
+<section class="dp-hero">
+  <div class="container">
+    <div class="eyebrow reveal">Design Process</div>
+    <h1 class="reveal">
+      From first sketch<br>
+      to <em>working prototype</em>.
+    </h1>
+    <p class="hero-sub reveal">
+      A documented engineering journey — five phases of ideation, prototyping, testing, and refinement, drawn directly from the lab notebook.
+    </p>
+  </div>
+</section>
+
+<!-- ====================== PHASES ====================== -->
+<section class="phases container">
+
+  <!-- PHASE 01: Problem Definition & Literature Review -->
+  <div class="phase reveal" data-screen-label="Phase 01">
+    <div>
+      <div class="phase-num">01</div>
+      <div class="phase-id">01 — Problem Definition</div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-title">Understanding the <em>biomechanical gap</em>.</div>
+      <div class="phase-prose">
+        <p>
+          Before drawing a single line, the project began with a literature review: how does the knee actually move? What torque does walking require? Where do existing braces fail? The answer — the instantaneous center of rotation traces a J-shaped curve, and every fixed-hinge device ignores this — became the architectural constraint everything else was built around.
+        </p>
+      </div>
+      <div class="decisions">
+        <div class="decisions-label">Key findings</div>
+        <ul>
+          <li>ICR migration of 12–18 mm from 0° to 90° flexion makes fixed-pin devices geometrically incompatible</li>
+          <li>Therapeutic torque threshold for gait: ≥ 8 Nm; no existing sub-$1,000 device reaches this</li>
+          <li>Target BOM ceiling set at $200 — below a typical insurance co-pay</li>
+        </ul>
+      </div>
+      <div class="notebook-grid">
+        <div>
+          <div class="notebook-frame">
+            <img src="assets/notebook-01a.jpg" alt="Notebook: ICR research" onerror="this.style.opacity='0'">
+            <div class="notebook-placeholder">
+              <div class="notebook-placeholder-icon">↑</div>
+              <div class="notebook-placeholder-label">Notebook scan<br>assets/notebook-01a.jpg</div>
+            </div>
+          </div>
+          <div class="notebook-caption"><span class="nc-label">NB 01a</span><span>ICR literature review</span></div>
+        </div>
+        <div>
+          <div class="notebook-frame">
+            <img src="assets/notebook-01b.jpg" alt="Notebook: cost analysis" onerror="this.style.opacity='0'">
+            <div class="notebook-placeholder">
+              <div class="notebook-placeholder-icon">↑</div>
+              <div class="notebook-placeholder-label">Notebook scan<br>assets/notebook-01b.jpg</div>
+            </div>
+          </div>
+          <div class="notebook-caption"><span class="nc-label">NB 01b</span><span>Cost analysis &amp; market survey</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 02: Concept Sketches & Ideation -->
+  <div class="phase reveal" data-screen-label="Phase 02">
+    <div>
+      <div class="phase-num">02</div>
+      <div class="phase-id">02 — Ideation</div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-title">Sketching the <em>semi-rigid chain</em> concept.</div>
+      <div class="phase-prose">
+        <p>
+          Three architectural concepts were sketched and evaluated: a telescoping rail system, a flexible sleeve with embedded actuators, and the semi-rigid chain. Only the chain inherently tracks a non-fixed rotation center — the cable tension collapses the slack links into a rigid arc whose radius of curvature follows the posterior joint geometry.
+        </p>
+        <p>
+          Dozens of chain geometries were sketched before settling on the 12-link PETG configuration. The key insight: link width controls the minimum bend radius, not the cable routing.
+        </p>
+      </div>
+      <div class="decisions">
+        <div class="decisions-label">Key decisions</div>
+        <ul>
+          <li>Semi-rigid chain selected over rigid rail — self-aligning, field-repairable, low mass</li>
+          <li>Hip-mounted actuator keeps distal mass under 250 g</li>
+          <li>Dyneema tendon chosen for 1.2 kN MBL at 1 mm diameter</li>
+        </ul>
+      </div>
+      <div class="notebook-grid">
+        <div>
+          <div class="notebook-frame">
+            <img src="assets/notebook-02a.jpg" alt="Notebook: chain concept sketches" onerror="this.style.opacity='0'">
+            <div class="notebook-placeholder">
+              <div class="notebook-placeholder-icon">↑</div>
+              <div class="notebook-placeholder-label">Notebook scan<br>assets/notebook-02a.jpg</div>
+            </div>
+          </div>
+          <div class="notebook-caption"><span class="nc-label">NB 02a</span><span>Chain concept sketches</span></div>
+        </div>
+        <div>
+          <div class="notebook-frame">
+            <img src="assets/notebook-02b.jpg" alt="Notebook: actuator placement options" onerror="this.style.opacity='0'">
+            <div class="notebook-placeholder">
+              <div class="notebook-placeholder-icon">↑</div>
+              <div class="notebook-placeholder-label">Notebook scan<br>assets/notebook-02b.jpg</div>
+            </div>
+          </div>
+          <div class="notebook-caption"><span class="nc-label">NB 02b</span><span>Actuator placement study</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 03: CAD Design -->
+  <div class="phase reveal" data-screen-label="Phase 03">
+    <div>
+      <div class="phase-num">03</div>
+      <div class="phase-id">03 — CAD Design</div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-title">From sketch to <em>parametric model</em>.</div>
+      <div class="phase-prose">
+        <p>
+          The chain geometry was modeled parametrically so link count, width, and tendon channel diameter could be swept across a design space. FEA confirmed that PETG at 2.4 mm wall thickness withstands the peak cable load (≈ 180 N) with a 3× safety factor — printable on a consumer FDM printer in under 40 minutes per set.
+        </p>
+        <p>
+          The aluminium thigh and shank rails were designed for bending stiffness, not just weight. The 6061-T6 C-channel profile was chosen after calculating that square tubing would exceed the mass budget without adding meaningful rigidity in the relevant loading direction.
+        </p>
+      </div>
+      <div class="decisions">
+        <div class="decisions-label">CAD decisions</div>
+        <ul>
+          <li>12 links at 22 mm width — covers 0°–145° with ≤ 1.4 mm mean ICR offset</li>
+          <li>6061-T6 aluminium C-channel rails — 31 % lighter than equivalent steel</li>
+          <li>PETG links: 2.4 mm wall, printable without supports</li>
+        </ul>
+      </div>
+      <div class="notebook-grid">
+        <div>
+          <div class="notebook-frame">
+            <img src="assets/notebook-03a.jpg" alt="Notebook: CAD sketches" onerror="this.style.opacity='0'">
+            <div class="notebook-placeholder">
+              <div class="notebook-placeholder-icon">↑</div>
+              <div class="notebook-placeholder-label">Notebook scan<br>assets/notebook-03a.jpg</div>
+            </div>
+          </div>
+          <div class="notebook-caption"><span class="nc-label">NB 03a</span><span>Link geometry calculations</span></div>
+        </div>
+        <div>
+          <div class="notebook-frame">
+            <img src="assets/notebook-03b.jpg" alt="Notebook: FEA notes" onerror="this.style.opacity='0'">
+            <div class="notebook-placeholder">
+              <div class="notebook-placeholder-icon">↑</div>
+              <div class="notebook-placeholder-label">Notebook scan<br>assets/notebook-03b.jpg</div>
+            </div>
+          </div>
+          <div class="notebook-caption"><span class="nc-label">NB 03b</span><span>FEA &amp; load analysis</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 04: Physical Prototyping -->
+  <div class="phase reveal" data-screen-label="Phase 04">
+    <div>
+      <div class="phase-num">04</div>
+      <div class="phase-id">04 — Prototyping</div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-title">Building the <em>first physical prototype</em>.</div>
+      <div class="phase-prose">
+        <p>
+          Three prototype generations were built. Gen 1 used a single continuous tendon threaded through 3D-printed pillar links — the slack behaviour was correct but the link-to-link friction under tension caused non-uniform force transmission. Gen 2 switched to individual clevis joints; Gen 3 refined the tendon channel geometry to reduce friction by 60 % (measured by load cell).
+        </p>
+        <p>
+          Each iteration was bench-tested on the mannequin rig before the next generation was printed, keeping cycle time under 48 hours per iteration.
+        </p>
+      </div>
+      <div class="decisions">
+        <div class="decisions-label">Iteration outcomes</div>
+        <ul>
+          <li>Gen 1 → Gen 2: replaced pillar threading with clevis joints — eliminated binding at high flexion angles</li>
+          <li>Gen 2 → Gen 3: radiused tendon channel, PTFE liner — friction reduced 60 %</li>
+          <li>Final link count fixed at 12 after ICR alignment testing</li>
+        </ul>
+      </div>
+      <div class="notebook-grid">
+        <div>
+          <div class="notebook-frame">
+            <img src="assets/notebook-04a.jpg" alt="Notebook: prototype build notes" onerror="this.style.opacity='0'">
+            <div class="notebook-placeholder">
+              <div class="notebook-placeholder-icon">↑</div>
+              <div class="notebook-placeholder-label">Notebook scan<br>assets/notebook-04a.jpg</div>
+            </div>
+          </div>
+          <div class="notebook-caption"><span class="nc-label">NB 04a</span><span>Gen 1–3 build log</span></div>
+        </div>
+        <div>
+          <div class="notebook-frame">
+            <img src="assets/notebook-04b.jpg" alt="Notebook: bench test data" onerror="this.style.opacity='0'">
+            <div class="notebook-placeholder">
+              <div class="notebook-placeholder-icon">↑</div>
+              <div class="notebook-placeholder-label">Notebook scan<br>assets/notebook-04b.jpg</div>
+            </div>
+          </div>
+          <div class="notebook-caption"><span class="nc-label">NB 04b</span><span>Bench test &amp; force data</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 05: Testing & Validation -->
+  <div class="phase reveal" data-screen-label="Phase 05">
+    <div>
+      <div class="phase-num">05</div>
+      <div class="phase-id">05 — Testing</div>
+    </div>
+    <div class="phase-body">
+      <div class="phase-title">Validation against the <em>design requirements</em>.</div>
+      <div class="phase-prose">
+        <p>
+          Formal validation was conducted on a hinged anthropomorphic mannequin under six experimental conditions (initial leg angle ∈ {75°, 95°}, servo speed ∈ {9, 13.5, 20 °/s}). Three repeatability runs each. The ICR tracking was measured by imaging the joint against calibrated reference markers.
+        </p>
+        <p>
+          The AI pipeline was validated separately against five licensed physiotherapists across 22 annotated sessions. Agreement was scored on training stage classification and weekly load recommendation — 82 % match across both categories.
+        </p>
+      </div>
+      <div class="decisions">
+        <div class="decisions-label">Validation results</div>
+        <ul>
+          <li>Mean ICR misalignment: 1.39 mm across 0°–145° ROM — within the 2 mm design target</li>
+          <li>Peak torque: 13.5 Nm — exceeds 8 Nm therapeutic threshold</li>
+          <li>Force CV: &lt; 2 % across repeatability runs — consistent actuation confirmed</li>
+          <li>AI–PT agreement: 82 % on stage classification and load recommendation</li>
+        </ul>
+      </div>
+      <div class="notebook-grid">
+        <div>
+          <div class="notebook-frame">
+            <img src="assets/notebook-05a.jpg" alt="Notebook: experimental setup" onerror="this.style.opacity='0'">
+            <div class="notebook-placeholder">
+              <div class="notebook-placeholder-icon">↑</div>
+              <div class="notebook-placeholder-label">Notebook scan<br>assets/notebook-05a.jpg</div>
+            </div>
+          </div>
+          <div class="notebook-caption"><span class="nc-label">NB 05a</span><span>Experimental setup &amp; protocol</span></div>
+        </div>
+        <div>
+          <div class="notebook-frame">
+            <img src="assets/notebook-05b.jpg" alt="Notebook: results data" onerror="this.style.opacity='0'">
+            <div class="notebook-placeholder">
+              <div class="notebook-placeholder-icon">↑</div>
+              <div class="notebook-placeholder-label">Notebook scan<br>assets/notebook-05b.jpg</div>
+            </div>
+          </div>
+          <div class="notebook-caption"><span class="nc-label">NB 05b</span><span>Results &amp; error analysis</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+</main>
+
+<!-- ====================== FOOTER ====================== -->
+<footer class="foot">
+  <div class="container">
+    <div>
+      <div>Regenix · Knee Rehabilitation Exoskeleton</div>
+      <div style="margin-top:8px; opacity:0.7;">2025 · Anthony Wu · Milton Academy</div>
+    </div>
+  </div>
+</footer>
+
+<!-- IntersectionObserver fade-up -->
+<script>
+(() => {
+  if (document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.documentElement.classList.add('js-fade');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+})();
+</script>
+
+</body>
+</html>

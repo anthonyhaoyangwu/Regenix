@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regenix — The Mission</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,350;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="assets/main.css">
+
+<style>
+  main { padding-top: 56px; }
+
+  /* HERO -------------------------------------------------- */
+  .mission-hero {
+    padding: 96px 0 80px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mission-hero h1 {
+    margin-top: 24px;
+    max-width: 860px;
+  }
+  .mission-hero h1 em { font-style: italic; color: var(--accent); }
+  .mission-hero .hero-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: clamp(18px, 1.6vw, 22px);
+    line-height: 1.5;
+    color: var(--ink-muted);
+    max-width: 560px;
+    margin-top: 28px;
+    letter-spacing: -0.005em;
+  }
+
+  /* ABOUT: photo + bio ------------------------------------ */
+  .about {
+    padding: 88px 0;
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 72px;
+    align-items: start;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* Photo frame — dashed placeholder until portrait is added */
+  .photo-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--bg-cool);
+  }
+  .photo-frame img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+  /* Dashed placeholder shows until the <img> loads */
+  .photo-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border: 1.5px dashed var(--rule-strong);
+    border-radius: 6px;
+  }
+  .photo-placeholder-icon {
+    width: 40px; height: 40px;
+    border: 1.5px solid var(--rule-strong);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--ink-muted);
+  }
+  .photo-placeholder-label {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    text-align: center;
+    padding: 0 24px;
+    line-height: 1.6;
+  }
+  /* Hide the placeholder once the image loads */
+  .photo-frame img:not([src=""]) + .photo-placeholder {
+    display: none;
+  }
+
+  /* Bio --------------------------------------------------- */
+  .bio-eyebrow {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 16px;
+  }
+  .bio h2 { margin-bottom: 28px; }
+  .bio h2 em { color: var(--accent); font-style: italic; }
+  .bio-text {
+    font-family: var(--serif);
+    font-size: clamp(17px, 1.5vw, 20px);
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 350;
+    letter-spacing: -0.005em;
+  }
+  .bio-text p + p { margin-top: 20px; }
+  .bio-text em { color: var(--accent); }
+  .bio-meta {
+    margin-top: 36px;
+    padding-top: 28px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    gap: 40px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+  .bio-meta strong { color: var(--ink); font-weight: 500; }
+
+  @media (max-width: 900px) {
+    .about { grid-template-columns: 1fr; gap: 40px; }
+    .photo-frame { max-width: 400px; }
+  }
+
+  /* MISSION STATEMENT ------------------------------------- */
+  .mission-statement {
+    padding: 88px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .mission-statement .callout {
+    font-size: clamp(20px, 2vw, 26px);
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: left;
+    border-left-width: 3px;
+    padding-left: 32px;
+  }
+
+  /* WHY REGENIX ------------------------------------------ */
+  .why {
+    padding: 88px 0;
+  }
+  .why-grid {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 64px;
+    align-items: start;
+  }
+  .why-label {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-bottom: 12px;
+  }
+  .why-heading {
+    font-family: var(--serif);
+    font-size: clamp(22px, 2vw, 28px);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .why-heading em { color: var(--accent); font-style: italic; }
+  .why-prose {
+    font-family: var(--serif);
+    font-size: clamp(17px, 1.5vw, 20px);
+    line-height: 1.55;
+    color: var(--ink);
+    font-weight: 350;
+    letter-spacing: -0.005em;
+  }
+  .why-prose p + p { margin-top: 22px; }
+  .why-prose em { color: var(--accent); }
+  @media (max-width: 900px) {
+    .why-grid { grid-template-columns: 1fr; gap: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Fixed nav -->
+<nav class="nav" data-screen-label="Top Nav">
+  <div class="nav-inner">
+    <a href="index.html" class="wordmark plain">
+      <span class="wm-mark"></span><span class="wm-em">Regenix</span><span style="color:var(--ink-muted); font-family:var(--mono); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; margin-left:8px;">Knee Exoskeleton</span>
+    </a>
+    <div class="nav-links">
+      <a href="index.html">Overview</a>
+      <a href="details.html">Deep dive</a>
+      <a href="design-process.html">Design Process</a>
+      <a href="mission.html" class="active">The Mission</a>
+    </div>
+  </div>
+</nav>
+
+<main data-screen-label="The Mission">
+
+<!-- ====================== HERO ====================== -->
+<section class="mission-hero">
+  <div class="container">
+    <div class="eyebrow reveal">The Mission</div>
+    <h1 class="reveal">
+      Robotics shouldn't be<br>
+      a <em>luxury</em>.
+    </h1>
+    <p class="hero-sub reveal">
+      A personal statement on why accessible rehabilitation technology matters — and why a high school researcher decided to build it from scratch.
+    </p>
+  </div>
+</section>
+
+<!-- ====================== ABOUT ====================== -->
+<section class="about container">
+
+  <!-- LEFT: portrait -->
+  <div class="photo-frame reveal">
+    <img src="assets/portrait.jpg" alt="Anthony Wu"
+         onerror="this.style.opacity='0'">
+    <div class="photo-placeholder">
+      <div class="photo-placeholder-icon">↑</div>
+      <div class="photo-placeholder-label">Add portrait →<br>assets/portrait.jpg</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: bio -->
+  <div class="bio reveal">
+    <div class="bio-eyebrow">About the researcher</div>
+    <h2>Hi, I'm <em>Anthony</em>.</h2>
+    <div class="bio-text">
+      <p>
+        I'm a student researcher at Milton Academy with a background in robotics, mechanical engineering, and human-centered design. Regenix began as a science fair project and grew into something I genuinely believe could change how rehabilitation works for millions of people.
+      </p>
+      <p>
+        I've spent the past year studying biomechanics, building prototypes, running experiments, and learning that the hardest engineering problems aren't the ones on the spec sheet — they're the ones that only appear when you actually try to help a real person.
+      </p>
+      <p>
+        My goal isn't to build the most powerful exoskeleton. It's to build the one that actually <em>reaches the people who need it</em>.
+      </p>
+    </div>
+    <div class="bio-meta">
+      <span>School <strong>Milton Academy</strong></span>
+      <span>Year <strong>2025</strong></span>
+      <span>Location <strong>Milton, MA</strong></span>
+    </div>
+  </div>
+
+</section>
+
+<!-- ====================== MISSION CALLOUT ====================== -->
+<section class="mission-statement">
+  <div class="container">
+    <div class="callout reveal">
+      <span class="callout-tag">Mission statement</span>
+      To make powered knee rehabilitation accessible to the 38 million people in the United States — and the billions more globally — who are currently priced out of the technology that could restore their mobility.
+    </div>
+  </div>
+</section>
+
+<!-- ====================== WHY REGENIX ====================== -->
+<section class="why">
+  <div class="container">
+    <div class="why-grid">
+      <div class="reveal">
+        <div class="why-label">The problem behind the problem</div>
+        <div class="why-heading">Why I built <em>this</em>, specifically.</div>
+      </div>
+      <div class="why-prose reveal">
+        <p>
+          When I first looked into powered exoskeletons, I expected to find a spectrum of options — affordable ones and expensive ones. What I found instead was a cliff edge: devices at $7,000 and above, then nothing. The gap between a $30 compression sleeve and a $7,000 powered device is not a market opportunity — it's a structural failure that leaves the patients with the greatest need with the worst options.
+        </p>
+        <p>
+          Regenix is designed around a single constraint: it has to cost less than a typical insurance co-pay. The $200 bill of materials isn't a happy accident. It's the load-bearing assumption the entire design is built around. Every component, every material choice, every architecture decision flows from that number.
+        </p>
+        <p>
+          The semi-rigid chain, the cable-driven actuation, the on-device AI that avoids expensive cloud infrastructure — all of it exists because <em>the price point is the mission</em>. Getting the biomechanics right matters enormously. But a perfect device that costs $50,000 helps no one new.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ====================== FOOTER ====================== -->
+<footer class="foot">
+  <div class="container">
+    <div>
+      <div>Regenix · Knee Rehabilitation Exoskeleton</div>
+      <div style="margin-top:8px; opacity:0.7;">2025 · Anthony Wu · Milton Academy</div>
+    </div>
+  </div>
+</footer>
+
+<!-- IntersectionObserver fade-up -->
+<script>
+(() => {
+  if (document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.documentElement.classList.add('js-fade');
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+})();
+</script>
+
+</body>
+</html>
