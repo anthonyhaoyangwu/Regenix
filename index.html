@@ -408,22 +408,21 @@
     color: var(--ink-muted);
     max-width: 560px;
   }
-  /* Full-width figure pair spanning both story columns */
+  /* Full-width figure stack spanning both story columns */
   .story-figs {
     grid-column: 1 / -1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
     margin-top: -32px;   /* cancel half of story's 56px row-gap */
     border-top: 1px solid var(--rule);
-    padding-top: 24px;
+    padding-top: 32px;
   }
   .story-figs figure { margin: 0; }
   @media (max-width: 900px) {
     .story { grid-template-columns: 1fr; gap: 16px; padding: 40px 0; }
     .story-num { font-size: 80px; }
-    .story-figs { grid-template-columns: 1fr; margin-top: 0; }
+    .story-figs { margin-top: 0; gap: 32px; }
   }
 
   /* DIAGRAMS ---------------------------------------------- */
@@ -1036,6 +1035,89 @@
     .rec-logo { width: 120px; height: 90px; }
   }
 
+  /* ALIGNMENT COMPARISON — 02 Device ---------------------- */
+  .align-compare {
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    background: var(--bg-warm);
+    overflow: hidden;
+    margin-top: 28px;
+  }
+  .align-compare-head {
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    display: flex;
+    justify-content: space-between;
+  }
+  .align-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .align-cell {
+    padding: 16px;
+  }
+  .align-cell--left { border-right: 1px solid var(--rule); }
+  .align-cell-title {
+    font-family: var(--mono);
+    font-size: 9.5px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+  .align-cell-sub {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 13px;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  /* STL viewer host */
+  .seg-viewer-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+  }
+  #segment-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  #segment-canvas canvas { display: block; }
+  #segment-loading {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    color: var(--ink-faint);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  /* Label callouts over STL canvas */
+  .seg-lbl {
+    position: absolute;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1.5;
+    pointer-events: none;
+    background: rgba(250,248,241,0.82);
+    padding: 3px 6px;
+    border-radius: 2px;
+  }
+  .seg-lbl--motor  { top: 5%;  right: 5%; color: var(--accent); text-align: right; }
+  .seg-lbl--tracks { top: 44%; right: 4%; color: var(--accent); text-align: right; }
+  .seg-lbl--t0     { bottom: 14%; left: 4%; color: var(--ink-faint); }
+  .seg-lbl--t60    { bottom: 4%;  left: 4%; color: var(--ink-faint); }
+
   /* CTA STRIP --------------------------------------------- */
   .cta-strip {
     margin: 88px 0 0;
@@ -1140,15 +1222,7 @@
 
       <!-- Metadata badge -->
       <div class="viewer-overlay meta-badge">
-        <div class="mb-label">Specimen</div>
-        <div class="mb-id">Regenix prototype</div>
-        <div class="mb-rows">
-          <span class="k">Source</span><span class="v"><span class="mb-dot"></span>3D scan · 18.3k tris</span>
-          <span class="k">Frame</span><span class="v">6061-T6 Al · PETG</span>
-          <span class="k">Actuator</span><span class="v">DH03X · 20:1</span>
-          <span class="k">Tendon</span><span class="v">Dyneema · MBL 1.2 kN</span>
-          <span class="k">ROM</span><span class="v">0° – 145°</span>
-        </div>
+        <div class="mb-id">Regenix Model</div>
       </div>
 
       <!-- Controls -->
@@ -1212,10 +1286,83 @@
       </p>
     </div>
 
-    <!-- FULL-WIDTH FIGURE PAIR -->
+    <!-- FULL-WIDTH FIGURE STACK: cost ladder on top, misalignment below -->
     <div class="story-figs">
 
-      <!-- LEFT: ICR misalignment — SVG figure -->
+      <!-- TOP: Cost ladder — wide landscape bar chart -->
+      <figure style="margin:0;">
+        <svg viewBox="0 0 900 430" role="img" aria-label="Vertical cost ladder comparing exoskeletons" style="width:100%;height:auto;display:block;border:1px solid var(--rule);border-radius:4px;background:#faf8f1;">
+
+          <!-- Title -->
+          <text x="110" y="20" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="2" fill="#6b6b63">FIG · COST LADDER · USD</text>
+
+          <!-- Y-axis -->
+          <line x1="110" y1="30" x2="110" y2="310" stroke="#d8d6cf" stroke-width="1"/>
+          <!-- Baseline -->
+          <line x1="110" y1="310" x2="700" y2="310" stroke="#d8d6cf" stroke-width="1"/>
+
+          <!-- Grid rules -->
+          <line x1="110" y1="240" x2="700" y2="240" stroke="#d8d6cf" stroke-width="0.5" stroke-dasharray="3 4"/>
+          <line x1="110" y1="170" x2="700" y2="170" stroke="#d8d6cf" stroke-width="0.5" stroke-dasharray="3 4"/>
+          <line x1="110" y1="100" x2="700" y2="100" stroke="#d8d6cf" stroke-width="0.5" stroke-dasharray="3 4"/>
+          <line x1="110" y1="30"  x2="700" y2="30"  stroke="#d8d6cf" stroke-width="0.5" stroke-dasharray="3 4"/>
+
+          <!-- Y-axis tick labels -->
+          <g font-family="JetBrains Mono, monospace" font-size="10" fill="#9c9a91" text-anchor="end">
+            <text x="104" y="314">$0</text>
+            <text x="104" y="244">$25k</text>
+            <text x="104" y="174">$50k</text>
+            <text x="104" y="104">$75k</text>
+            <text x="104" y="34">$100k</text>
+          </g>
+
+          <!-- Bar 1: ReWalk $90,000 — h=252, top y=58 -->
+          <rect x="150" y="58" width="90" height="252" fill="#1a1a17"/>
+          <text x="195" y="52" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17" text-anchor="middle">$90,000</text>
+
+          <!-- Bar 2: Ekso GT $70,000 — h=196, top y=114 -->
+          <rect x="300" y="114" width="90" height="196" fill="#3a3a32"/>
+          <text x="345" y="108" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17" text-anchor="middle">$70,000</text>
+
+          <!-- Bar 3: Roam Ascend $7,000 — h=20, top y=290 -->
+          <rect x="450" y="290" width="90" height="20" fill="#6e6a5e"/>
+          <text x="495" y="284" font-family="JetBrains Mono, monospace" font-size="10" fill="#1a1a17" text-anchor="middle">$7,000</text>
+
+          <!-- Bar 4: Regenix $200 — sliver + pointer -->
+          <rect x="600" y="307" width="90" height="3" fill="#3d7a5a"/>
+          <line x1="645" y1="307" x2="645" y2="278" stroke="#3d7a5a" stroke-width="0.9"/>
+          <text x="645" y="273" font-family="JetBrains Mono, monospace" font-size="11" font-weight="500" fill="#3d7a5a" text-anchor="middle">$200</text>
+          <!-- Annotation to the right -->
+          <line x1="692" y1="270" x2="710" y2="270" stroke="#9c9a91" stroke-width="0.6"/>
+          <text x="714" y="262" font-family="Fraunces, serif" font-size="12" font-style="italic" fill="#6b6b63">— under 3%</text>
+          <text x="714" y="278" font-family="Fraunces, serif" font-size="12" font-style="italic" fill="#6b6b63">of the cheapest</text>
+          <text x="714" y="294" font-family="Fraunces, serif" font-size="12" font-style="italic" fill="#6b6b63">powered competitor.</text>
+
+          <!-- Product name labels, rotated -40° anchored well below baseline -->
+          <g transform="translate(195,382) rotate(-40)">
+            <text font-family="Fraunces, serif" font-size="13" fill="#1a1a17">ReWalk 6.0</text>
+            <text dy="16" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#9c9a91">FULL LOWER LIMB</text>
+          </g>
+          <g transform="translate(345,382) rotate(-40)">
+            <text font-family="Fraunces, serif" font-size="13" fill="#1a1a17">Ekso GT</text>
+            <text dy="16" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#9c9a91">GAIT TRAINER</text>
+          </g>
+          <g transform="translate(495,382) rotate(-40)">
+            <text font-family="Fraunces, serif" font-size="13" fill="#1a1a17">Roam Ascend</text>
+            <text dy="16" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#9c9a91">CONSUMER KNEE EXO</text>
+          </g>
+          <g transform="translate(645,382) rotate(-40)">
+            <text font-family="Fraunces, serif" font-size="13" font-style="italic" fill="#3d7a5a">Regenix</text>
+            <text dy="16" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#3d7a5a">THIS WORK</text>
+          </g>
+        </svg>
+        <figcaption class="fig-caption" style="margin-top:14px;">
+          <span class="fc-label">Fig. 1.2</span>
+          <span class="fc-text">Per-unit retail price. Regenix's $200 bar is so small it nearly disappears on this axis — that is the point.</span>
+        </figcaption>
+      </figure>
+
+      <!-- BOTTOM: ICR misalignment — SVG figure -->
       <figure style="margin:0;">
 
         <svg style="width:100%;height:auto;display:block;border:1px solid var(--rule);border-radius:4px;"
@@ -1236,46 +1383,61 @@
           <line x1="440" y1="44" x2="440" y2="588" stroke="#d8d6cf" stroke-width="0.6" stroke-dasharray="2 4"/>
 
           <!-- ════════════════════════════════════════
-               a · LEFT — Technical view: leg + exoskeleton
+               a · LEFT — Rigid brace: fixed hinge misalignment
                ════════════════════════════════════════ -->
           <text x="20" y="58" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="2" fill="#3d7a5a" font-weight="500">a</text>
-          <text x="40" y="58" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="2" fill="#6b6b63">TECHNICAL VIEW · LEG + EXO + ICR ZOOM</text>
+          <text x="40" y="58" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="2" fill="#6b6b63">RIGID EXOSKELETON · FIXED HINGE CONSTRAINT</text>
 
-          <!-- Reference photo: leg with exoskeleton + ICR migration inset -->
-          <image href="assets/diagram%20a.png"
+          <!-- Rigid brace photo -->
+          <image href="assets/rigidbrace.png"
                  x="22" y="72" width="398" height="265"
                  preserveAspectRatio="xMidYMid meet"/>
           <rect x="22" y="72" width="398" height="265" fill="none" stroke="#d8d6cf" stroke-width="0.6"/>
+
+          <!-- ── Misalignment callouts overlaid on image ── -->
+
+          <!-- CALLOUT 1: Proximal cuff — thigh strap shear zone -->
+          <line x1="174" y1="112" x2="238" y2="130" stroke="#c0392b" stroke-width="0.7" stroke-dasharray="3 2"/>
+          <circle cx="240" cy="131" r="3.5" fill="#c0392b"/>
+          <rect x="26" y="97" width="144" height="32" rx="2" fill="#faf8f1" fill-opacity="0.90"/>
+          <text x="34" y="111" font-family="JetBrains Mono, monospace" font-size="8.5" letter-spacing="1.4" fill="#c0392b" font-weight="500">PROXIMAL CUFF</text>
+          <text x="34" y="124" font-family="Fraunces, serif" font-style="italic" font-size="10.5" fill="#6b6b63">shear force at thigh strap</text>
+
+          <!-- CALLOUT 2: Fixed hinge pivot — main misalignment source -->
+          <line x1="178" y1="200" x2="292" y2="208" stroke="#c0392b" stroke-width="0.7" stroke-dasharray="3 2"/>
+          <circle cx="295" cy="209" r="4" fill="#c0392b"/>
+          <!-- Outer ring to emphasise fixed pivot -->
+          <circle cx="295" cy="209" r="7" fill="none" stroke="#c0392b" stroke-width="1" opacity="0.5"/>
+          <rect x="26" y="185" width="148" height="32" rx="2" fill="#faf8f1" fill-opacity="0.90"/>
+          <text x="34" y="199" font-family="JetBrains Mono, monospace" font-size="8.5" letter-spacing="1.4" fill="#c0392b" font-weight="500">FIXED HINGE PIVOT</text>
+          <text x="34" y="212" font-family="Fraunces, serif" font-style="italic" font-size="10.5" fill="#6b6b63">axis cannot migrate with ICR</text>
+
+          <!-- CALLOUT 3: Distal cuff — shin strap shear zone -->
+          <line x1="158" y1="288" x2="235" y2="294" stroke="#c0392b" stroke-width="0.7" stroke-dasharray="3 2"/>
+          <circle cx="237" cy="295" r="3.5" fill="#c0392b"/>
+          <rect x="26" y="273" width="128" height="32" rx="2" fill="#faf8f1" fill-opacity="0.90"/>
+          <text x="34" y="287" font-family="JetBrains Mono, monospace" font-size="8.5" letter-spacing="1.4" fill="#c0392b" font-weight="500">DISTAL CUFF</text>
+          <text x="34" y="300" font-family="Fraunces, serif" font-style="italic" font-size="10.5" fill="#6b6b63">shear force at shin strap</text>
 
           <!-- Key elements legend -->
           <line x1="22" y1="360" x2="420" y2="360" stroke="#d8d6cf" stroke-width="0.6"/>
           <text x="22" y="380" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="2.4" fill="#3d7a5a" font-weight="500">KEY ELEMENTS</text>
 
-          <!-- Blue + -->
-          <g stroke="#2a6fdb" stroke-width="1.8" stroke-linecap="round">
-            <line x1="34" y1="398" x2="34" y2="410"/>
-            <line x1="28" y1="404" x2="40" y2="404"/>
-          </g>
-          <text x="58" y="402" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.2" fill="#1a1a17">BLUE +</text>
-          <text x="58" y="418" font-family="Fraunces, serif" font-style="italic" font-size="12.5" fill="#6b6b63">true biological joint axes — the body's pivot points</text>
+          <!-- Fixed pivot -->
+          <circle cx="34" cy="404" r="5" fill="#c0392b"/>
+          <circle cx="34" cy="404" r="8" fill="none" stroke="#c0392b" stroke-width="1" opacity="0.5"/>
+          <text x="58" y="402" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.2" fill="#1a1a17">FIXED HINGE PIVOT</text>
+          <text x="58" y="418" font-family="Fraunces, serif" font-style="italic" font-size="12.5" fill="#6b6b63">single rigid axis — cannot follow ICR migration</text>
 
-          <!-- Red • -->
-          <circle cx="34" cy="442" r="6" fill="#c0392b" stroke="#1a1a17" stroke-width="0.8"/>
-          <text x="58" y="446" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.2" fill="#1a1a17">RED •</text>
-          <text x="58" y="462" font-family="Fraunces, serif" font-style="italic" font-size="12.5" fill="#6b6b63">exoskeleton hinge pins — fixed in the device shell</text>
-
-          <!-- Red × -->
-          <g stroke="#c0392b" stroke-width="1.8" stroke-linecap="round">
-            <line x1="28" y1="481" x2="40" y2="493"/>
-            <line x1="40" y1="481" x2="28" y2="493"/>
-          </g>
-          <text x="58" y="490" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.2" fill="#1a1a17">RED ×</text>
-          <text x="58" y="506" font-family="Fraunces, serif" font-style="italic" font-size="12.5" fill="#6b6b63">contact stress concentrations under load</text>
+          <!-- Cuff shear -->
+          <circle cx="34" cy="444" r="5" fill="#c0392b"/>
+          <text x="58" y="448" font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.2" fill="#1a1a17">CUFF SHEAR ZONES</text>
+          <text x="58" y="464" font-family="Fraunces, serif" font-style="italic" font-size="12.5" fill="#6b6b63">constraint forces generate skin friction under load</text>
 
           <!-- Editorial conclusion -->
-          <line x1="22" y1="528" x2="120" y2="528" stroke="#3d7a5a" stroke-width="1"/>
-          <text x="22" y="548" font-family="Fraunces, serif" font-style="italic" font-size="14" fill="#1a1a17">Every blue + misses</text>
-          <text x="22" y="565" font-family="Fraunces, serif" font-style="italic" font-size="14" fill="#1a1a17">every red •.</text>
+          <line x1="22" y1="494" x2="120" y2="494" stroke="#3d7a5a" stroke-width="1"/>
+          <text x="22" y="514" font-family="Fraunces, serif" font-style="italic" font-size="14" fill="#1a1a17">The hinge is fixed.</text>
+          <text x="22" y="531" font-family="Fraunces, serif" font-style="italic" font-size="14" fill="#1a1a17">The joint is not.</text>
 
           <!-- ════════════════════════════════════════
                b · TOP-RIGHT — Anatomical view: knee + ICR
@@ -1341,83 +1503,6 @@
         <figcaption class="fig-caption" style="margin-top:12px;">
           <span class="fc-label">Fig. 1.1</span>
           <span class="fc-text">Rigid exoskeletons assume the knee rotates about a single fixed axis. It doesn't — the instantaneous center of rotation (ICR) traces a J-shaped curve through flexion, so every fixed pin generates shear at the cuff and contact forces at the joint.</span>
-        </figcaption>
-      </figure>
-
-      <!-- RIGHT: Vertical cost ladder -->
-      <figure>
-        <svg viewBox="0 0 470 455" role="img" aria-label="Vertical cost ladder comparing exoskeletons" style="width:100%; height:auto; display:block;">
-          <!-- Title -->
-          <text x="72" y="16" font-family="JetBrains Mono, monospace" font-size="9.5" letter-spacing="2" fill="#6b6b63">FIG · COST LADDER · USD</text>
-
-          <!-- Y-axis -->
-          <line x1="72" y1="26" x2="72" y2="330" stroke="#d8d6cf" stroke-width="1"/>
-          <!-- Baseline -->
-          <line x1="72" y1="330" x2="348" y2="330" stroke="#d8d6cf" stroke-width="1"/>
-
-          <!-- Horizontal grid rules (stop at x=348, leaving room for annotation) -->
-          <line x1="72" y1="255" x2="348" y2="255" stroke="#d8d6cf" stroke-width="0.5" stroke-dasharray="3 4"/>
-          <line x1="72" y1="180" x2="348" y2="180" stroke="#d8d6cf" stroke-width="0.5" stroke-dasharray="3 4"/>
-          <line x1="72" y1="105" x2="348" y2="105" stroke="#d8d6cf" stroke-width="0.5" stroke-dasharray="3 4"/>
-          <line x1="72" y1="30"  x2="348" y2="30"  stroke="#d8d6cf" stroke-width="0.5" stroke-dasharray="3 4"/>
-
-          <!-- Y-axis tick labels -->
-          <g font-family="JetBrains Mono, monospace" font-size="9.5" fill="#9c9a91" text-anchor="end">
-            <text x="66" y="334">$0</text>
-            <text x="66" y="259">$25k</text>
-            <text x="66" y="184">$50k</text>
-            <text x="66" y="109">$75k</text>
-            <text x="66" y="34">$100k</text>
-          </g>
-
-          <!-- Bar 1: ReWalk $90,000 — height=270, top y=60 -->
-          <rect x="90" y="60" width="48" height="270" fill="#1a1a17"/>
-          <text x="114" y="55" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#1a1a17" text-anchor="middle">$90,000</text>
-
-          <!-- Bar 2: Ekso GT $70,000 — height=210, top y=120 -->
-          <rect x="158" y="120" width="48" height="210" fill="#3a3a32"/>
-          <text x="182" y="115" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#1a1a17" text-anchor="middle">$70,000</text>
-
-          <!-- Bar 3: Roam Ascend $7,000 — height=21, top y=309 -->
-          <rect x="226" y="309" width="48" height="21" fill="#6e6a5e"/>
-          <text x="250" y="303" font-family="JetBrains Mono, monospace" font-size="9.5" fill="#1a1a17" text-anchor="middle">$7,000</text>
-
-          <!-- Bar 4: Regenix $200 — essentially zero; show 3 px sliver + pointer -->
-          <rect x="294" y="327" width="48" height="3" fill="#3d7a5a"/>
-          <!-- Pointer line up to label -->
-          <line x1="318" y1="327" x2="318" y2="298" stroke="#3d7a5a" stroke-width="0.8"/>
-          <text x="318" y="293" font-family="JetBrains Mono, monospace" font-size="10" font-weight="500" fill="#3d7a5a" text-anchor="middle">$200</text>
-          <!-- Short dash leading into the annotation -->
-          <line x1="342" y1="290" x2="358" y2="290" stroke="#9c9a91" stroke-width="0.6"/>
-          <!-- Annotation block to the right of the Regenix column -->
-          <text x="362" y="290" font-family="Fraunces, serif" font-size="11" font-style="italic" fill="#6b6b63">— under 3 %</text>
-          <text x="362" y="304" font-family="Fraunces, serif" font-size="11" font-style="italic" fill="#6b6b63">of the cheapest</text>
-          <text x="362" y="318" font-family="Fraunces, serif" font-size="11" font-style="italic" fill="#6b6b63">powered</text>
-          <text x="362" y="332" font-family="Fraunces, serif" font-size="11" font-style="italic" fill="#6b6b63">competitor.</text>
-
-          <!-- Product name labels — anchored well below baseline (y=400) so
-               even the longest text, rotating up-right at -40°, never
-               crosses back above the chart baseline at y=330 -->
-          <g transform="translate(114,402) rotate(-40)">
-            <text font-family="Fraunces, serif" font-size="12" fill="#1a1a17">ReWalk 6.0</text>
-            <text dy="14" font-family="JetBrains Mono, monospace" font-size="8.5" letter-spacing="1" fill="#9c9a91">FULL LOWER LIMB</text>
-          </g>
-          <g transform="translate(182,402) rotate(-40)">
-            <text font-family="Fraunces, serif" font-size="12" fill="#1a1a17">Ekso GT</text>
-            <text dy="14" font-family="JetBrains Mono, monospace" font-size="8.5" letter-spacing="1" fill="#9c9a91">GAIT TRAINER</text>
-          </g>
-          <g transform="translate(250,402) rotate(-40)">
-            <text font-family="Fraunces, serif" font-size="12" fill="#1a1a17">Roam Ascend</text>
-            <text dy="14" font-family="JetBrains Mono, monospace" font-size="8.5" letter-spacing="1" fill="#9c9a91">CONSUMER KNEE EXO</text>
-          </g>
-          <g transform="translate(318,402) rotate(-40)">
-            <text font-family="Fraunces, serif" font-size="12" font-style="italic" fill="#3d7a5a">Regenix</text>
-            <text dy="14" font-family="JetBrains Mono, monospace" font-size="8.5" letter-spacing="1" fill="#3d7a5a">THIS WORK</text>
-          </g>
-        </svg>
-        <figcaption class="fig-caption" style="margin-top:14px;">
-          <span class="fc-label">Fig. 1.2</span>
-          <span class="fc-text">Per-unit retail price. Regenix's $200 bar is so small it nearly disappears on this axis — that is the point.</span>
         </figcaption>
       </figure>
 
@@ -1504,8 +1589,75 @@
         </figure>
       </div>
 
-      <!-- HIDDEN: original alignment SVG (kept for reference) -->
-      <div class="figure" hidden>
+      <!-- ALIGNMENT COMPARISON: fixed hinge SVG left | segment STL right -->
+      <div class="align-compare">
+        <div class="align-compare-head">
+          <span>FIG · ALIGNMENT COMPARISON</span>
+          <span style="color:var(--ink-faint);">0° → 145° ROM</span>
+        </div>
+        <div class="align-panels">
+
+          <!-- LEFT: Fixed hinge (SVG) -->
+          <div class="align-cell align-cell--left">
+            <div class="align-cell-title" style="color:#a87156;">FIXED HINGE</div>
+            <div class="align-cell-sub">Constrains the knee.</div>
+            <svg viewBox="0 0 320 230" style="width:100%;height:auto;display:block;">
+
+          <!-- ============= LEFT: Fixed hinge — misaligned ============= -->
+          <g transform="translate(0, 0)">
+            <!-- Extension pose -->
+            <g transform="translate(0, 0)">
+              <path d="M 60 0 L 60 90" stroke="#1a1a17" stroke-width="1.2" fill="none"/>
+              <path d="M 60 90 L 60 180" stroke="#1a1a17" stroke-width="1.2" fill="none"/>
+              <circle cx="78" cy="92" r="6" fill="none" stroke="#a87156" stroke-width="1.4"/>
+              <circle cx="78" cy="92" r="2" fill="#a87156"/>
+              <circle cx="60" cy="86" r="1.6" fill="#3d7a5a"/>
+              <path d="M 78 8 L 78 92 L 78 174" stroke="#a87156" stroke-width="1.4" fill="none" stroke-dasharray="4 3"/>
+              <line x1="60" y1="86" x2="78" y2="92" stroke="#a87156" stroke-width="0.8"/>
+              <text x="86" y="78" font-family="JetBrains Mono, monospace" font-size="9" fill="#a87156">Δ misalign</text>
+              <text x="14" y="198" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#9c9a91">θ ≈ 0°  EXTENSION</text>
+            </g>
+
+            <!-- Flexion pose -->
+            <g transform="translate(160, 0)">
+              <path d="M 60 0 L 60 90" stroke="#1a1a17" stroke-width="1.2" fill="none"/>
+              <g transform="translate(60, 90) rotate(60)">
+                <path d="M 0 0 L 0 90" stroke="#1a1a17" stroke-width="1.2" fill="none"/>
+              </g>
+              <circle cx="78" cy="92" r="6" fill="none" stroke="#a87156" stroke-width="1.4"/>
+              <circle cx="78" cy="92" r="2" fill="#a87156"/>
+              <circle cx="55" cy="96" r="1.6" fill="#3d7a5a"/>
+              <path d="M 78 8 L 78 92" stroke="#a87156" stroke-width="1.4" fill="none" stroke-dasharray="4 3"/>
+              <g transform="translate(78, 92) rotate(50)">
+                <path d="M 0 0 L 0 85" stroke="#a87156" stroke-width="1.4" fill="none" stroke-dasharray="4 3"/>
+              </g>
+              <path d="M 55 96 Q 70 80 78 92" stroke="#a87156" stroke-width="0.7" fill="none"/>
+              <text x="88" y="78" font-family="JetBrains Mono, monospace" font-size="9" fill="#a87156">shear ↑</text>
+              <text x="0" y="198" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#9c9a91">θ ≈ 60°  FLEXION</text>
+            </g>
+          </g>
+            </svg>
+          </div><!-- end align-cell--left -->
+
+          <!-- RIGHT: exoskeleton_segment.stl -->
+          <div class="align-cell" style="position:relative;">
+            <div class="align-cell-title" style="color:var(--accent);">SEMI-RIGID CHAIN</div>
+            <div class="align-cell-sub">Tracks the joint.</div>
+            <div class="seg-viewer-wrap">
+              <div id="segment-canvas"></div>
+              <span id="segment-loading">Loading…</span>
+              <div class="seg-lbl seg-lbl--motor">motor<br>@ hip</div>
+              <div class="seg-lbl seg-lbl--tracks">← tracks ICR<br>stable l_a</div>
+              <div class="seg-lbl seg-lbl--t0">θ ≈ 0°&nbsp; chain straight</div>
+              <div class="seg-lbl seg-lbl--t60">θ ≈ 60°&nbsp; chain wraps</div>
+            </div>
+          </div><!-- end align-cell right -->
+
+        </div><!-- end align-panels -->
+      </div><!-- end align-compare -->
+
+      <!-- original alignment SVG kept below for reference -->
+      <div style="display:none;">
         <svg viewBox="0 0 720 280" role="img" aria-label="Fixed hinge vs self-aligning chain comparison" style="margin-top: 28px;">
           <text x="0" y="14" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="2" fill="#6b6b63">FIG · ALIGNMENT</text>
 
@@ -1796,7 +1948,7 @@
     <div>
       <h3>Continue to the <em>deep dive</em>.</h3>
       <p class="cta-sub">
-        Biomechanics, mechanical design, the AI pipeline, the experimental data, and what comes next — laid out as a single long-scroll research document.
+        Explore the theoretical, mechanical and software design along with the experimental data and what comes next
       </p>
     </div>
     <a href="assets/Anthony Wu - Semi-rigid Exoskeleton Paper.pdf" class="btn" download="Anthony Wu - Semi-rigid Exoskeleton Paper.pdf">Open the full paper <span class="arrow">→</span></a>
@@ -1855,6 +2007,7 @@
 </script>
 <script type="module" src="scripts/exoskeleton-3d.js"></script>
 <script type="module" src="scripts/chain-3d.js"></script>
+<script type="module" src="scripts/segment-3d.js"></script>
 
 <!-- IntersectionObserver fade-up -->
 <script>

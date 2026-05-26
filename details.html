@@ -818,7 +818,7 @@
     </h1>
 
     <p class="hero-sub reveal">
-      Designed for equitable orthopedic rehabilitation in low- and middle-income countries — the world's missing five billion patients. Self-aligning to the knee's instantaneous center of rotation, repairable with 3D-printed spares, and explained end-to-end below.
+      Designed for equitable orthopedic rehabilitation in low- and middle-income countries, where there are only 10 skilled rehabilitation providers per 1 million people.
     </p>
 
     <div class="hero-stats reveal">
@@ -837,19 +837,19 @@
   <div class="container">
     <div class="s-head reveal">
       <div class="s-label"><span class="num">01</span>Problem</div>
-      <h2>The two cheap alternatives <em>fail biomechanically</em>; the powered ones are unaffordable by an order of magnitude.</h2>
+      <h2>There is a crippling gap between what solutions <em>exist</em> and what patients can afford.</h2>
     </div>
 
     <div class="grid-prose-side reveal">
       <div>
         <p class="lede">
-          ACL ruptures, meniscal tears, and degenerative knee osteoarthritis account for more than <em>half of global lower-limb disability-adjusted life years</em>. Roughly five billion people lack timely surgical access; conservative management is their only option.
+          About <em>374 million people worldwide</em> suffer from knee osteoarthritis, yet global data suggests that up to 90% of individuals with chronic knee conditions never seek formal medical care.
         </p>
         <p class="body-prose" style="margin-top: 22px;">
-          For those patients, two cheap options exist — elastic compression sleeves that deliver no therapeutic torque, and rigid post-op braces that misalign with the knee's migrating center of rotation, generating constraint forces and skin shear. The third option, robotic exoskeletons (ReWalk, Ekso, Roam) deliver real torque but cost between US&nbsp;$7,000 and US&nbsp;$100,000.
+          One of the main drivers of this phenomenon is inaccessibility to orthopedic physiotherapy — the primary treatment for knee conditions. Particularly in low- and middle-income countries, there are <em>fewer than 10 skilled rehabilitation providers per 1 million people</em>, making these services functionally nonexistent for the majority.
         </p>
         <p class="body-prose">
-          LMIC per-capita health expenditure routinely falls below US&nbsp;$200 per annum. The disparity is not a market gap; it is a structural <em>exclusion of the highest-need populations from the highest-impact technology</em>.
+          Currently, there are no ways to solve this disparity in global healthcare. LMIC per-capita health expenditure routinely falls below US&nbsp;$200 per annum, which is well below what is needed for a standard physiotherapy program.
         </p>
 
         <div class="callout">
@@ -916,99 +916,42 @@
       <h2>Rigid, soft, or <em>semi-rigid</em>. The third path resolves a real trade-off.</h2>
     </div>
 
-    <!-- Comparison diagram -->
-    <div class="figure reveal" style="margin-bottom: 48px;">
-      <svg viewBox="0 0 960 280" role="img" aria-label="Three approaches comparison">
-        <text x="0" y="14" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="2" fill="#6b6b63">FIG · DESIGN SPECTRUM</text>
+    <!-- Comparison diagram — HTML grid so the STL canvas can sit alongside the photos -->
+    <div class="reveal" style="margin-bottom: 48px;">
+      <div style="font-family:var(--mono);font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:16px;">FIG · DESIGN SPECTRUM</div>
 
-        <!-- RIGID -->
-        <g transform="translate(40, 40)">
-          <text x="120" y="0" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="2" fill="#a87156">RIGID</text>
-          <!-- Leg -->
-          <path d="M 120 30 L 120 110 L 120 220" stroke="#1a1a17" stroke-width="1.4" fill="none"/>
-          <!-- Rigid hinge (boxy) -->
-          <rect x="138" y="100" width="22" height="22" fill="none" stroke="#a87156" stroke-width="1.4"/>
-          <!-- Rigid rails -->
-          <line x1="138" y1="30" x2="138" y2="100" stroke="#a87156" stroke-width="1.4"/>
-          <line x1="160" y1="30" x2="160" y2="100" stroke="#a87156" stroke-width="1.4"/>
-          <line x1="138" y1="122" x2="138" y2="220" stroke="#a87156" stroke-width="1.4"/>
-          <line x1="160" y1="122" x2="160" y2="220" stroke="#a87156" stroke-width="1.4"/>
-          <!-- Motor on the leg (heavy) -->
-          <rect x="170" y="90" width="32" height="42" fill="#a87156" opacity="0.85"/>
-          <text x="206" y="118" font-family="JetBrains Mono, monospace" font-size="9" fill="#a87156">motor</text>
-          <!-- annotation arrow -->
-          <path d="M 90 110 L 130 110" stroke="#a87156" stroke-width="0.8" fill="none" marker-end="url(#arrow-clay)"/>
-          <text x="40" y="105" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#a87156" text-anchor="start">misalign</text>
-          <text x="40" y="118" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#a87156" text-anchor="start">@ flex.</text>
-        </g>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;border:1px solid var(--rule);border-radius:4px;overflow:hidden;background:var(--rule);">
 
-        <!-- SOFT -->
-        <g transform="translate(360, 40)">
-          <text x="120" y="0" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="2" fill="#a87156">SOFT EXOSUIT</text>
-          <!-- Leg -->
-          <path d="M 120 30 L 120 110 L 120 220" stroke="#1a1a17" stroke-width="1.4" fill="none"/>
-          <!-- Fabric sleeve (wavy) -->
-          <path d="M 100 40 Q 105 70 100 100 Q 95 130 100 160 Q 105 190 100 220" stroke="#a87156" stroke-width="1" fill="none" stroke-dasharray="2 3"/>
-          <path d="M 140 40 Q 145 70 140 100 Q 135 130 140 160 Q 145 190 140 220" stroke="#a87156" stroke-width="1" fill="none" stroke-dasharray="2 3"/>
-          <!-- Cable through fabric -->
-          <path d="M 132 30 Q 128 110 132 220" stroke="#a87156" stroke-width="0.8" fill="none"/>
-          <!-- Force leak indicator (small arrows perpendicular) -->
-          <g stroke="#a87156" stroke-width="0.8" fill="none">
-            <path d="M 142 80 L 158 75"/>
-            <path d="M 142 130 L 158 135"/>
-            <path d="M 142 180 L 158 185"/>
-          </g>
-          <text x="170" y="83" font-family="JetBrains Mono, monospace" font-size="9" fill="#a87156">force leaks</text>
-        </g>
+        <!-- A · RIGID -->
+        <div style="background:var(--bg-warm);padding:16px;">
+          <div style="font-family:var(--mono);font-size:9.5px;letter-spacing:0.2em;text-transform:uppercase;color:#a87156;margin-bottom:6px;">RIGID</div>
+          <img src="assets/rigidbrace.png" alt="Rigid knee exoskeleton" style="width:100%;height:auto;display:block;border:1px solid var(--rule);border-radius:2px;">
+          <div style="font-family:var(--mono);font-size:8.5px;letter-spacing:0.12em;text-transform:uppercase;color:#a87156;margin-top:10px;">Fixed hinge · misaligns at flexion</div>
+        </div>
 
-        <!-- SEMI-RIGID (US) -->
-        <g transform="translate(680, 40)">
-          <text x="120" y="0" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10.5" letter-spacing="2" fill="#3d7a5a">SEMI-RIGID CHAIN</text>
-          <!-- Leg -->
-          <path d="M 120 30 L 120 110 L 120 220" stroke="#1a1a17" stroke-width="1.4" fill="none"/>
-          <!-- Chain segments -->
-          <g stroke="#3d7a5a" stroke-width="1.2" fill="none">
-            <rect x="134" y="34" width="14" height="16" rx="1"/>
-            <rect x="134" y="52" width="14" height="16" rx="1"/>
-            <rect x="134" y="70" width="14" height="16" rx="1"/>
-            <rect x="134" y="88" width="14" height="16" rx="1"/>
-            <rect x="134" y="106" width="14" height="16" rx="1"/>
-            <rect x="134" y="124" width="14" height="16" rx="1"/>
-            <rect x="134" y="142" width="14" height="16" rx="1"/>
-            <rect x="134" y="160" width="14" height="16" rx="1"/>
-            <rect x="134" y="178" width="14" height="16" rx="1"/>
-            <rect x="134" y="196" width="14" height="16" rx="1"/>
-          </g>
-          <!-- Cable inside chain -->
-          <line x1="141" y1="30" x2="141" y2="218" stroke="#3d7a5a" stroke-width="0.6" stroke-dasharray="2 2"/>
-          <!-- Distributed strap anchors (4) -->
-          <g stroke="#3d7a5a" stroke-width="1" fill="none">
-            <ellipse cx="120" cy="45" rx="22" ry="3"/>
-            <ellipse cx="120" cy="95" rx="20" ry="3"/>
-            <ellipse cx="120" cy="135" rx="18" ry="3"/>
-            <ellipse cx="120" cy="200" rx="18" ry="3"/>
-          </g>
-          <!-- Hip-mounted motor (off-limb) -->
-          <rect x="100" y="0" width="40" height="22" fill="#3d7a5a" opacity="0.85"/>
-          <text x="156" y="14" font-family="JetBrains Mono, monospace" font-size="9" fill="#3d7a5a">motor</text>
-          <text x="156" y="24" font-family="JetBrains Mono, monospace" font-size="9" fill="#3d7a5a">@ hip</text>
-          <!-- annotation -->
-          <path d="M 240 110 L 165 110" stroke="#3d7a5a" stroke-width="0.8" fill="none" marker-end="url(#arrow-green)"/>
-          <text x="246" y="105" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#3d7a5a">tracks ICR</text>
-          <text x="246" y="118" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1" fill="#3d7a5a">stable l_a</text>
-        </g>
+        <!-- B · SOFT EXOSUIT -->
+        <div style="background:var(--bg-warm);padding:16px;">
+          <div style="font-family:var(--mono);font-size:9.5px;letter-spacing:0.2em;text-transform:uppercase;color:#a87156;margin-bottom:6px;">SOFT EXOSUIT</div>
+          <img src="assets/softexosuit.jpg" alt="Soft exosuit" style="width:100%;height:auto;display:block;border:1px solid var(--rule);border-radius:2px;">
+          <div style="font-family:var(--mono);font-size:8.5px;letter-spacing:0.12em;text-transform:uppercase;color:#a87156;margin-top:10px;">Fabric stretch · force leaks through suit</div>
+          <div style="font-family:var(--mono);font-size:7.5px;letter-spacing:0.08em;color:var(--ink-faint);margin-top:4px;">Source: Harvard Biodesign Lab</div>
+        </div>
 
-        <!-- Arrow markers -->
-        <defs>
-          <marker id="arrow-clay" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#a87156"/>
-          </marker>
-          <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-            <path d="M 0 0 L 10 5 L 0 10 z" fill="#3d7a5a"/>
-          </marker>
-        </defs>
-      </svg>
-      <div class="fig-caption" style="margin-top: 12px;">
+        <!-- C · SEMI-RIGID CHAIN — exoskeleton_segment.stl -->
+        <div style="background:var(--bg-warm);padding:16px;position:relative;">
+          <div style="font-family:var(--mono);font-size:9.5px;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">SEMI-RIGID CHAIN</div>
+          <div style="position:relative;aspect-ratio:3/4;border:1px solid var(--rule);border-radius:2px;overflow:hidden;background:var(--bg-cool);">
+            <div id="segment-detail-canvas" style="position:absolute;inset:0;width:100%;height:100%;"></div>
+            <span id="segment-detail-loading" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:9px;color:var(--ink-faint);white-space:nowrap;pointer-events:none;">Loading…</span>
+            <!-- Labels -->
+            <div style="position:absolute;top:5%;right:5%;font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);text-align:right;background:rgba(250,248,241,0.85);padding:2px 5px;border-radius:2px;pointer-events:none;line-height:1.5;">motor<br>@ hip</div>
+            <div style="position:absolute;top:44%;right:4%;font-family:var(--mono);font-size:8px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);text-align:right;background:rgba(250,248,241,0.85);padding:2px 5px;border-radius:2px;pointer-events:none;line-height:1.5;">← tracks ICR<br>stable l_a</div>
+          </div>
+          <div style="font-family:var(--mono);font-size:8.5px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-top:10px;">Self-aligning · tracks ICR</div>
+        </div>
+
+      </div>
+      <div class="fig-caption" style="margin-top:12px;">
         <span class="fc-label">Fig. 2.1</span>
         <span class="fc-text">Rigid systems impose torque but fight the joint; soft suits track the body but bleed force through fabric; the chain does both.</span>
       </div>
@@ -1021,12 +964,8 @@
         <div class="ac-body">
           Aluminum or steel exoskeletons with electric or hydraulic actuators at each joint. Strong, precise, repeatable — but assumes a simple hinge knee, ignoring the joint's translational motion. Slight axis offsets become shear forces and pressure injuries.
         </div>
-        <div>
-          <div class="ac-line good">+ Deterministic torque · 13–40 Nm</div>
-          <div class="ac-line good">+ Precise joint angle control</div>
-          <div class="ac-line bad">− Donning time 30–40 min</div>
-          <div class="ac-line bad">− 18–25 kg full-limb mass</div>
-          <div class="ac-line bad">− Misalignment shear at the knee</div>
+        <div style="margin-top:12px;">
+          <img src="assets/diagram%20a.png" alt="Technical diagram showing rigid exoskeleton misalignment at the knee" style="width:100%;height:auto;display:block;border:1px solid var(--rule);border-radius:3px;">
         </div>
         <div class="ac-stats">
           <div><div class="k">Cost</div><div class="v">$70k–100k</div></div>
@@ -1041,11 +980,7 @@
           Textile sleeves with Bowden cables or pneumatic actuators. Conforms to the body — no rigid axis, no misalignment. But the fabric stretches; force leaks through unwanted motion; pressure concentrates on the patella when straps cinch tight.
         </div>
         <div>
-          <div class="ac-line good">+ Conforms naturally to body</div>
-          <div class="ac-line good">+ Lightweight, portable</div>
-          <div class="ac-line bad">− Peak knee assist ≈ 0.03 Nm/kg</div>
-          <div class="ac-line bad">− Unstable moment arm</div>
-          <div class="ac-line bad">− Patellar pressure points</div>
+          <img src="assets/softexopro.png" alt="Soft exosuit pros and cons" style="width:100%;display:block;border-radius:4px;">
         </div>
         <div class="ac-stats">
           <div><div class="k">Cost</div><div class="v">$2k–7k</div></div>
@@ -2644,6 +2579,7 @@ TIMELINE-END-->
   window.addEventListener('load', spy);
 })();
 </script>
+<script type="module" src="scripts/segment-detail-3d.js"></script>
 
 </body>
 </html>
